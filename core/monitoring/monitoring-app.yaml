@@ -9,7 +9,7 @@ spec:
   source:
     repoURL: https://github.com/justgu1/infra
     targetRevision: main
-    path: monitoring/kube-prometheus-stack
+    path: core/monitoring
     helm:
       releaseName: monitoring
       valueFiles:
