@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+
+metadata:
+  name: root-app
+  namespace: argocd
+
+spec:
+
+  project: infrastructure
+
+  source:
+    repoURL: https://github.com/SEU_USUARIO/infra
+    targetRevision: main
+    path: core
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
