@@ -1,5 +1,5 @@
-prometheus-node-exporter:
+nodeExporter:
   enabled: false
-  
+
 grafana:
   plugins: []
