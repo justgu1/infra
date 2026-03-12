@@ -1,5 +1,0 @@
-apiVersion: v2
-name: kube-prometheus-stack
-description: Helm chart skeleton for monitoring
-version: 0.1.0
-type: application

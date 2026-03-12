@@ -6,14 +6,18 @@ metadata:
 spec:
   project: infrastructure
 
-  source:
-    repoURL: https://github.com/justgu1/infra
-    targetRevision: main
-    path: core/monitoring
-    helm:
-      releaseName: monitoring
-      valueFiles:
-        - values.yaml
+  sources:
+    - repoURL: https://prometheus-community.github.io/helm-charts
+      chart: kube-prometheus-stack
+      targetRevision: 58.2.0
+      helm:
+        releaseName: monitoring
+        valueFiles:
+          - $values/core/monitoring/values.yaml
+
+    - repoURL: https://github.com/justgu1/infra
+      targetRevision: HEAD
+      ref: values
 
   destination:
     server: https://kubernetes.default.svc
