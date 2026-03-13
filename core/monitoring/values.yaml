@@ -3,3 +3,8 @@ kube-prometheus-stack:
     enabled: false
   grafana:
     plugins: []
+  prometheusOperator:
+    admissionWebhooks:
+      enabled: false
+    tls:
+      enabled: false
