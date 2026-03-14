@@ -1,369 +1,92 @@
-# Kubernetes Infrastructure
+# Infraestrutura Kubernetes — justgu1
 
-Infraestrutura Kubernetes baseada em **k3s** e gerenciada via **GitOps com ArgoCD**.
+Infraestrutura completa baseada em **k3s**, gerenciada via **GitOps com ArgoCD**.
 
-O objetivo deste repositório é manter **toda a infraestrutura declarativa dentro do Git**, permitindo que qualquer ambiente seja recriado de forma consistente.
-
----
-
-# Stack
-
-| Componente               | Função                       |
-| ------------------------ | ---------------------------- |
-| Kubernetes (k3s)         | Orquestração de containers   |
-| ArgoCD                   | GitOps / Deploy declarativo  |
-| NGINX Ingress Controller | Entrada HTTP/HTTPS           |
-| Prometheus               | Coleta de métricas           |
-| Grafana                  | Dashboards e observabilidade |
+Tudo que roda no cluster está declarado neste repositório. Nenhuma alteração manual no cluster — toda mudança passa pelo Git.
 
 ---
 
-# Arquitetura
+## Stack
 
-Fluxo GitOps da infraestrutura:
-
-```
-Git
- ↓
-ArgoCD
- ↓
-Cluster Kubernetes
-```
-
-Toda alteração feita neste repositório é aplicada automaticamente no cluster.
+| Componente               | Função                                        |
+| ------------------------ | --------------------------------------------- |
+| k3s                      | Distribuição leve do Kubernetes               |
+| ArgoCD                   | Sincroniza o cluster com este repositório     |
+| NGINX Ingress Controller | Roteamento HTTP/HTTPS para os serviços        |
+| Prometheus               | Coleta e armazena métricas do cluster         |
+| Alertmanager             | Gerencia e roteia alertas                     |
+| Grafana                  | Dashboards de observabilidade                 |
+| kube-state-metrics       | Métricas de estado dos recursos do Kubernetes |
 
 ---
 
-# Estrutura do Repositório
+## Estrutura
 
 ```
 infra/
- ├ apps
- │   └ aplicações deployadas no cluster
- │
- ├ argocd
- │   ├ projects.yaml
- │   └ root-app.yaml
- │
- ├ bootstrap
- │   └ argocd-install.yaml
- │
- ├ core
- │   ├ ingress
- │   │   └ nginx.yaml
- │   │
- │   ├ monitoring
- │   │   └ kube-prometheus-stack.yaml
- │   │
- │   └ namespaces
- │       ├ ingress.yaml
- │       └ monitoring.yaml
- │
- └ README.md
-```
-
-Descrição das pastas:
-
-| Pasta     | Descrição                      |
-| --------- | ------------------------------ |
-| bootstrap | Recursos iniciais do cluster   |
-| argocd    | Configuração GitOps            |
-| core      | Infraestrutura base do cluster |
-| apps      | Aplicações rodando no cluster  |
-
----
-
-# Componentes do Cluster
-
-## Ingress
-
-Responsável por expor serviços HTTP/HTTPS para fora do cluster.
-
-```
-NGINX Ingress Controller
+ ├ apps/          → aplicações deployadas no cluster
+ ├ argocd/        → configuração do GitOps (projetos e root app)
+ ├ bootstrap/     → instalação inicial do ArgoCD
+ └ core/          → infraestrutura base
+     ├ ingress/       → NGINX Ingress Controller
+     ├ monitoring/    → Prometheus + Grafana + Alertmanager
+     └ namespaces/    → namespaces do cluster
 ```
 
 ---
 
-## Observabilidade
+## Como funciona o GitOps
 
-Stack de monitoramento:
+O ArgoCD monitora este repositório continuamente. Quando um commit é feito, ele detecta a diferença entre o estado desejado (Git) e o estado atual do cluster, e aplica as mudanças automaticamente.
 
 ```
-Prometheus
-Grafana
-Alertmanager
-Node Exporter
-kube-state-metrics
+Commit no Git → ArgoCD detecta → Aplica no cluster
 ```
+
+Para fazer qualquer alteração na infraestrutura: **edite os arquivos, faça commit e push**. Não use `kubectl apply` diretamente em recursos gerenciados pelo ArgoCD.
 
 ---
 
-# Ambiente Local
+## Primeiros passos
 
-Cluster de desenvolvimento rodando em:
+Para subir o ambiente do zero, consulte o [docs.md](./docs.md) — seção **Bootstrap**.
 
-```
-WSL
-k3s
-kubectl
-```
-
-Instalação do k3s:
-
-```
-curl -sfL https://get.k3s.io | sh -
-```
-
-Verificar cluster:
-
-```
-kubectl get nodes
-```
-
-Verificar pods:
-
-```
-kubectl get pods -A
-```
+Para entender cada tecnologia, troubleshooting e uso no dia a dia, consulte o [docs.md](./docs.md).
 
 ---
 
-# Bootstrap do Cluster
+## Acesso rápido (ambiente local)
 
-O bootstrap acontece em etapas.
-
-## 1 Instalar ArgoCD
-
-Criar namespace:
-
-```
-kubectl create namespace argocd
-```
-
-Instalar ArgoCD:
-
-```
-kubectl apply --server-side -n argocd \
--f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-```
-
-Verificar pods:
-
-```
-kubectl get pods -n argocd
-```
-
----
-
-## 2 Acessar ArgoCD
-
-```
+```bash
+# ArgoCD UI
 kubectl port-forward svc/argocd-server -n argocd 8080:443
-```
+# https://localhost:8080
 
-Abrir:
-
-```
-https://localhost:8080
-```
-
----
-
-## 3 Login no ArgoCD
-
-Usuário:
-
-```
-admin
-```
-
-Senha inicial:
-
-```
-kubectl -n argocd get secret argocd-initial-admin-secret \
--o jsonpath="{.data.password}" | base64 --decode
-```
-
----
-
-## 4 Aplicar configuração GitOps
-
-Aplicar projeto:
-
-```
-kubectl apply -f argocd/projects.yaml
-```
-
-Aplicar root application:
-
-```
-kubectl apply -f argocd/root-app.yaml
-```
-
-O ArgoCD começará a gerenciar automaticamente:
-
-```
-core/
- ├ namespaces
- ├ ingress
- └ monitoring
-```
-
----
-
-# Verificações
-
-Ver nodes:
-
-```
-kubectl get nodes
-```
-
-Ver pods:
-
-```
-kubectl get pods -A
-```
-
-Ver serviços:
-
-```
-kubectl get svc -A
-```
-
-Ver aplicações ArgoCD:
-
-```
-kubectl get applications -n argocd
-```
-
----
-
-# Comandos úteis
-
-Logs de um pod:
-
-```
-kubectl logs <pod>
-```
-
-Descrever recurso:
-
-```
-kubectl describe pod <pod>
-```
-
-Executar shell em container:
-
-```
-kubectl exec -it <pod> -- /bin/sh
-```
-
----
-
-# Observabilidade
-
-Acessar Grafana:
-
-```
+# Grafana
 kubectl port-forward svc/monitoring-grafana -n monitoring 3000:80
-```
+# http://localhost:3000  →  admin / prom-operator
 
-Abrir:
+# Prometheus
+kubectl port-forward svc/monitoring-kube-prometheus-prometheus -n monitoring 9090:9090
+# http://localhost:9090
 
-```
-http://localhost:3000
-```
-
-Usuário:
-
-```
-admin
-```
-
-Senha padrão:
-
-```
-prom-operator
+# Alertmanager
+kubectl port-forward svc/monitoring-kube-prometheus-alertmanager -n monitoring 9093:9093
+# http://localhost:9093
 ```
 
 ---
 
-# Deploy de aplicações
+## Ambiente local (WSL + k3s)
 
-Novas aplicações devem ser adicionadas em:
-
-```
-apps/
-```
-
-ArgoCD fará o deploy automaticamente.
+Este repositório foi desenvolvido e testado em WSL2 com k3s. Algumas funcionalidades estão desabilitadas por limitações do WSL — veja a seção **WSL — Limitações e Soluções** no [docs.md](./docs.md).
 
 ---
 
-# Ambiente de Produção
+## Roadmap
 
-Esta infraestrutura foi projetada para rodar também em:
-
-* servidor dedicado
-* bare metal
-* cloud (AWS / GCP / Azure)
-
-Instalação recomendada:
-
-```
-Ubuntu Server
-k3s
-kubectl
-helm
-```
-
-Instalar k3s:
-
-```
-curl -sfL https://get.k3s.io | sh -
-```
-
-Verificar cluster:
-
-```
-kubectl get nodes
-```
-
-Depois aplicar bootstrap:
-
-```
-kubectl apply -f bootstrap/
-kubectl apply -f argocd/
-```
-
----
-
-# Escalabilidade
-
-Esta infraestrutura permite:
-
-* múltiplos ambientes
-* múltiplos projetos
-* deploy automático
-* observabilidade completa
-* infraestrutura versionada
-
----
-
-# Roadmap
-
-Próximos passos da plataforma:
-
-* Expor ArgoCD via Ingress
-* Expor Grafana via domínio
-* TLS automático com cert-manager
-* Deploy automático de aplicações
-* Ambientes separados (dev / staging / prod)
-
----
-
-# Licença
-
-Uso interno para infraestrutura Kubernetes.
+- Expor serviços via Ingress (ArgoCD, Grafana)
+- TLS automático com cert-manager
+- Receivers no Alertmanager (Slack / email)
+- Regras de alerta customizadas
+- Ambientes separados (dev / staging / prod)
