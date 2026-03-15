@@ -1,0 +1,38 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd
+  namespace: argocd
+spec:
+  project: infrastructure
+  source:
+    repoURL: https://argoproj.github.io/argo-helm
+    chart: argo-cd
+    targetRevision: 9.4.10
+    helm:
+      values: |
+        configs:
+          cm:
+            url: http://argocd.local
+            dex.config: |
+              connectors:
+                - type: github
+                  id: github
+                  name: GitHub
+                  config:
+                    clientID: Ov23liFXjakC9R71jUAJ
+                    clientSecret: $argocd-github-sso:clientSecret
+                    orgs: []
+          rbac:
+            policy.default: role:readonly
+            policy.csv: |
+              g, justgu1, role:admin
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
