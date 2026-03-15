@@ -1,10 +1,10 @@
 kube-prometheus-stack:
   nodeExporter:
-    enabled: false
+    enabled: true
 
   grafana:
     enabled: true
 
   prometheusOperator:
     admissionWebhooks:
-      enabled: false
+      enabled: true
