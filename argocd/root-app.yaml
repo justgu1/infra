@@ -5,7 +5,7 @@ metadata:
   namespace: argocd
 
 spec:
-  project: infrastructure
+  project: default
 
   source:
     repoURL: https://github.com/justgu1/infra
