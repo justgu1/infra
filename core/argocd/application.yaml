@@ -11,6 +11,9 @@ spec:
     targetRevision: 9.4.10
     helm:
       values: |
+        server:
+          extraArgs:
+            - --insecure
         configs:
           cm:
             url: http://argocd.local
@@ -36,3 +39,4 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      - Replace=true
