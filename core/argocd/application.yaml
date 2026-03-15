@@ -24,8 +24,11 @@ spec:
                   name: GitHub
                   config:
                     clientID: Ov23liFXjakC9R71jUAJ
-                    clientSecret: $argocd-github-sso:clientSecret
+                    clientSecret: $oidc.github.clientSecret
                     orgs: []
+          secret:
+            extra:
+              oidc.github.clientSecret: fc356f4725cc053bd2bcc9e9933ad66ab1999eb1
           rbac:
             policy.default: role:readonly
             policy.csv: |
