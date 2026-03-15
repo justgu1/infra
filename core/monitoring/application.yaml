@@ -8,7 +8,7 @@ spec:
 
   source:
     repoURL: https://github.com/justgu1/infra
-    targetRevision: HEAD
+    targetRevision: main
     path: core/monitoring
     helm:
       releaseName: monitoring
