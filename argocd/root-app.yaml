@@ -13,6 +13,7 @@ spec:
     path: core
     directory:
       recurse: true
+      exclude: '{ingress/alertmanager.yaml,ingress/argocd.yaml,ingress/grafana.yaml,ingress/prometheus.yaml,ingress/nginx.yaml}'
 
   destination:
     server: https://kubernetes.default.svc
@@ -24,3 +25,4 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      - Replace=true
