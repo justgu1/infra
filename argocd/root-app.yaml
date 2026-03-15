@@ -12,8 +12,6 @@ spec:
     repoURL: https://github.com/justgu1/infra
     targetRevision: main
     path: core
-    directory:
-      recurse: true
 
   destination:
     server: https://kubernetes.default.svc
