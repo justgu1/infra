@@ -8,3 +8,5 @@ kube-prometheus-stack:
   prometheusOperator:
     admissionWebhooks:
       enabled: true
+      patch:
+        enabled: true
