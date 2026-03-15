@@ -11,7 +11,13 @@ spec:
     chart: metallb
     targetRevision: 0.14.5
     helm:
-      releaseName: metallb
+      values: |
+        configInline:
+          address-pools:
+            - name: local-pool
+              protocol: layer2
+              addresses:
+                - 192.168.0.240-192.168.0.250
 
   destination:
     server: https://kubernetes.default.svc
