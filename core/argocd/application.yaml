@@ -24,7 +24,7 @@ spec:
                   name: GitHub
                   config:
                     clientID: Ov23liFXjakC9R71jUAJ
-                    clientSecret: $oidc.github.clientSecret
+                    clientSecret: fc356f4725cc053bd2bcc9e9933ad66ab1999eb1
                     orgs: []
           secret:
             extra:
