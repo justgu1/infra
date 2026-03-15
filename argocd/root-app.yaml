@@ -5,7 +5,7 @@ metadata:
   namespace: argocd
 
 spec:
-  project: default
+  project: infrastructure
 
   source:
     repoURL: https://github.com/justgu1/infra
@@ -20,3 +20,5 @@ spec:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

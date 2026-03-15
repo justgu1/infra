@@ -6,7 +6,6 @@ metadata:
   namespace: argocd
 
 spec:
-
   project: infrastructure
 
   source:
@@ -16,6 +15,10 @@ spec:
 
     helm:
       releaseName: ingress-nginx
+      values: |
+        controller:
+          service:
+            type: LoadBalancer
 
   destination:
     server: https://kubernetes.default.svc
