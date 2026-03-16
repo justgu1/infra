@@ -3,7 +3,9 @@ kind: Ingress
 metadata:
   name: alertmanager
   namespace: monitoring
-
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+    
 spec:
   ingressClassName: nginx
 
