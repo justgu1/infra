@@ -24,6 +24,7 @@ spec:
       jsonPointers:
         - /metadata/annotations
         - /metadata/managedFields
+        - /spec/conversion/webhook/clientConfig/caBundle
 
   syncPolicy:
     automated:
