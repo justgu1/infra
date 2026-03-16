@@ -12,7 +12,7 @@ spec:
   source:
     repoURL: https://github.com/justgu1/infra
     targetRevision: main
-    path: core/networking/metallb-config
+    path: infrastructure/metallb-config
 
   destination:
     server: https://kubernetes.default.svc
