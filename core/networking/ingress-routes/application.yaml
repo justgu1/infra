@@ -1,20 +1,21 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: metallb-config
+  name: ingress-routes
   namespace: argocd
+
 spec:
-  project: default
+  project: infrastructure
+
   source:
     repoURL: https://github.com/justgu1/infra
     targetRevision: main
-    path: core/metallb-config
+    path: platform/ingress-routes
+
   destination:
     server: https://kubernetes.default.svc
-    namespace: metallb-system
+
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
