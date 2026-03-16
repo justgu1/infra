@@ -11,6 +11,11 @@ spec:
     targetRevision: 9.4.10
     helm:
       values: |
+        redis:
+          exporter:
+            enabled: false
+        redisSecretInit:
+          enabled: false
         server:
           extraArgs:
             - --insecure
