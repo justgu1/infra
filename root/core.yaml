@@ -1,20 +1,20 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: metallb-config
+  name: core
   namespace: argocd
 spec:
-  project: infrastructure
+  project: default
   source:
     repoURL: https://github.com/justgu1/infra
     targetRevision: main
-    path: core/metallb/config
+    path: core
+    directory:
+      recurse: true
   destination:
     server: https://kubernetes.default.svc
-    namespace: metallb-system
+    namespace: argocd
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
-    syncOptions:
-      - CreateNamespace=true

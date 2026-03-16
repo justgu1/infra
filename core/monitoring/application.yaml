@@ -4,21 +4,18 @@ metadata:
   name: monitoring
   namespace: argocd
 spec:
-  project: infrastructure
-
+  project: default
   source:
-    repoURL: https://github.com/justgu1/infra
-    targetRevision: main
-    path: core/monitoring
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    targetRevision: 70.4.2
     helm:
-      releaseName: monitoring
-      valueFiles:
-        - values.yaml
-
+      valuesObject:
+        grafana:
+          adminPassword: admin
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
-
   syncPolicy:
     automated:
       prune: true

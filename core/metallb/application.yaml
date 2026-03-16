@@ -4,11 +4,11 @@ metadata:
   name: metallb
   namespace: argocd
 spec:
-  project: infrastructure
+  project: default
   source:
     repoURL: https://metallb.github.io/metallb
     chart: metallb
-    targetRevision: 0.14.5
+    targetRevision: 0.14.9
   destination:
     server: https://kubernetes.default.svc
     namespace: metallb-system

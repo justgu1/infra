@@ -1,28 +1,20 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
-
 metadata:
   name: root-app
   namespace: argocd
-
 spec:
-  project: infrastructure
+  project: default
   source:
     repoURL: https://github.com/justgu1/infra
     targetRevision: main
-    path: core
+    path: root
     directory:
       recurse: true
-      exclude: '{ingress/alertmanager.yaml,ingress/argocd.yaml,ingress/grafana.yaml,ingress/prometheus.yaml,ingress/nginx.yaml}'
-
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
-
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-      - Replace=true

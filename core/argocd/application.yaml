@@ -4,21 +4,18 @@ metadata:
   name: argocd
   namespace: argocd
 spec:
-  project: infrastructure
+  project: default
   source:
     repoURL: https://argoproj.github.io/argo-helm
     chart: argo-cd
     targetRevision: 9.4.10
     helm:
-      values: |
-        redis:
-          exporter:
-            enabled: false
-        redisSecretInit:
-          enabled: false
+      valuesObject:
         server:
           extraArgs:
             - --insecure
+        redisSecretInit:
+          enabled: false
         configs:
           cm:
             url: http://argocd.local
@@ -52,5 +49,4 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-      - Replace=true
       - ServerSideApply=true
