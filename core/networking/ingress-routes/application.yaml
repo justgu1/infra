@@ -7,7 +7,7 @@ metadata:
     argocd.argoproj.io/sync-wave: "0"
 
 spec:
-  project: infrastructure
+  project: default
 
   source:
     repoURL: https://github.com/justgu1/infra
