@@ -7,9 +7,9 @@ spec:
   description: Platform services (auth, storage, secrets)
   sourceRepos:
     - https://github.com/justgu1/infra
-    - https://github.com/justgu1/authentik
-    - https://github.com/justgu1/minio
-    - https://github.com/justgu1/passbolt
+    - git@github.com:justgu1/authentik.git
+    - git@github.com:justgu1/minio.git
+    - git@github.com:justgu1/passbolt.git
   destinations:
     - server: https://kubernetes.default.svc
       namespace: argocd

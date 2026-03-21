@@ -6,7 +6,7 @@ metadata:
 spec:
   project: platform
   source:
-    repoURL: https://github.com/justgu1/passbolt
+    repoURL: git@github.com:justgu1/passbolt.git
     targetRevision: HEAD
     path: .
   destination:
