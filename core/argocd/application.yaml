@@ -12,8 +12,6 @@ spec:
     helm:
       valuesObject:
         server:
-          extraArgs:
-            - --insecure=false
           replicas: 2
           autoscaling:
             enabled: true
@@ -42,7 +40,13 @@ spec:
         
         configs:
           cm:
+            # HTTPS URL
             url: https://argocd.justgui.dev
+            
+            # Informar proxy reverso HTTPS
+            server.secure: false
+            server.disable.auth: false
+            server.x-frame-options: "SAMEORIGIN"
             
             # GitHub OIDC
             oidc.config: |
@@ -50,9 +54,7 @@ spec:
               issuer: https://token.actions.githubusercontent.com
               clientID: Ov23liFXjakC9R71jUAJ
               clientSecret: $oidc.github.clientSecret
-              requestedIDTokenClaims:
-                groups_claim: groups
-              requestedScopes:
+              scopes:
                 - openid
                 - profile
                 - email
@@ -63,7 +65,6 @@ spec:
               g, justgu1, role:admin
           
           secret:
-            # secret sealed
             oidc.github.clientSecret: $oidc.github.clientSecret
 
   ignoreDifferences:
