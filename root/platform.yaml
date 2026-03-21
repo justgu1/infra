@@ -10,6 +10,7 @@ spec:
     - git@github.com:justgu1/authentik.git
     - git@github.com:justgu1/minio.git
     - git@github.com:justgu1/passbolt.git
+    - https://charts.goauthentik.io
   destinations:
     - server: https://kubernetes.default.svc
       namespace: argocd
