@@ -6,10 +6,13 @@ metadata:
 spec:
   description: Platform services (auth, storage, secrets)
   sourceRepos:
+    - https://github.com/justgu1/infra
     - https://github.com/justgu1/authentik
     - https://github.com/justgu1/minio
     - https://github.com/justgu1/passbolt
   destinations:
+    - server: https://kubernetes.default.svc
+      namespace: argocd
     - server: https://kubernetes.default.svc
       namespace: platform-authentik
     - server: https://kubernetes.default.svc
