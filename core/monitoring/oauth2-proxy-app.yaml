@@ -33,7 +33,7 @@ spec:
 
         service:
           type: ClusterIP
-          port: 80
+          portNumber: 80
           targetPort: 4180
 
         ingress:
