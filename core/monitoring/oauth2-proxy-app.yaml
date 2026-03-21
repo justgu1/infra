@@ -37,7 +37,7 @@ spec:
           targetPort: 4180
 
         ingress:
-          enabled: true
+          enabled: false
           ingressClassName: nginx
           hostname: oauth2-proxy.justgui.dev
           annotations:
