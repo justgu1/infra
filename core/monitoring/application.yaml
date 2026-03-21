@@ -13,6 +13,18 @@ spec:
       valuesObject:
         grafana:
           adminPassword: admin
+          grafana.ini:
+            auth:
+              disable_login_form: true
+              signout_redirect_url: "https://oauth2-proxy.justgui.dev/oauth2/sign_out"
+            auth.proxy:
+              enabled: true
+              header_name: X-Auth-Request-Email
+              header_property: email
+              auto_sign_up: true
+            users:
+              auto_assign_org: true
+              auto_assign_org_role: Admin
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
