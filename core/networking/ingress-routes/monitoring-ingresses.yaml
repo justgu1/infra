@@ -82,3 +82,28 @@ spec:
                 name: monitoring-grafana
                 port:
                   number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: oauth2-proxy
+  namespace: monitoring
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  tls:
+    - secretName: oauth2-proxy-tls
+      hosts:
+        - oauth2-proxy.justgui.dev
+  rules:
+    - host: oauth2-proxy.justgui.dev
+      http:
+        paths:
+          - path: /oauth2
+            pathType: Prefix
+            backend:
+              service:
+                name: oauth2-proxy
+                port:
+                  number: 80
