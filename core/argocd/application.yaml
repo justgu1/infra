@@ -13,8 +13,7 @@ spec:
       valuesObject:
         server:
           extraArgs:
-            - --insecure
-          
+            - --insecure=false
           replicas: 2
           autoscaling:
             enabled: true
@@ -43,21 +42,29 @@ spec:
         
         configs:
           cm:
-            url: http://argocd.local
-            dex.config: |
-              connectors:
-                - type: github
-                  id: github
-                  name: GitHub
-                  config:
-                    clientID: Ov23liFXjakC9R71jUAJ
-                    clientSecret: $oidc.github.clientSecret
-                    orgs: []
+            url: https://argocd.justgui.dev
+            
+            # GitHub OIDC
+            oidc.config: |
+              name: GitHub
+              issuer: https://token.actions.githubusercontent.com
+              clientID: Ov23liFXjakC9R71jUAJ
+              clientSecret: $oidc.github.clientSecret
+              requestedIDTokenClaims:
+                groups_claim: groups
+              requestedScopes:
+                - openid
+                - profile
+                - email
           
           rbac:
             policy.default: role:readonly
             policy.csv: |
               g, justgu1, role:admin
+          
+          secret:
+            # secret sealed
+            oidc.github.clientSecret: $oidc.github.clientSecret
 
   ignoreDifferences:
     - group: apiextensions.k8s.io
