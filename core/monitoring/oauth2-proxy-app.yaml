@@ -1,0 +1,59 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: oauth2-proxy
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://oauth2-proxy.github.io/manifests
+    chart: oauth2-proxy
+    targetRevision: 7.7.1
+    helm:
+      valuesObject:
+        config:
+          clientID: Ov23lixcbjpM3kmWL6t9
+          clientSecret: ""
+          cookieSecret: ""
+          existingSecret: oauth2-proxy-secret
+          configFile: |-
+            email_domains = [ "*" ]
+            upstreams = [ "file:///dev/null" ]
+            github_users = [ "justgu1" ]
+            cookie_secure = true
+            cookie_samesite = "lax"
+            skip_provider_button = true
+
+        extraArgs:
+          - --provider=github
+          - --cookie-domain=.justgui.dev
+          - --whitelist-domain=.justgui.dev
+          - --set-xauthrequest=true
+          - --pass-access-token=true
+
+        service:
+          type: ClusterIP
+          port: 80
+          targetPort: 4180
+
+        ingress:
+          enabled: true
+          ingressClassName: nginx
+          hostname: oauth2-proxy.justgui.dev
+          annotations:
+            cert-manager.io/cluster-issuer: "letsencrypt-prod"
+          tls:
+            - secretName: oauth2-proxy-tls
+              hosts:
+                - oauth2-proxy.justgui.dev
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
