@@ -49,6 +49,7 @@ spec:
             server.disable.auth: "false"
             server.x-frame-options: "SAMEORIGIN"
             dex.config: |
+              issuer: https://argocd.justgui.dev/api/dex
               connectors:
                 - type: github
                   id: github
