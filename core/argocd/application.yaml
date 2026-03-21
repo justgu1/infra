@@ -13,7 +13,6 @@ spec:
       valuesObject:
         server:
           replicas: 2
-          # TLS é terminado no nginx. O argocd-server roda em HTTP puro internamente.
           extraArgs:
             - --insecure
           autoscaling:
@@ -41,31 +40,38 @@ spec:
         redisSecretInit:
           enabled: false
 
+        dex:
+          enabled: true
+          # Injeta o clientSecret do SealedSecret como variável de ambiente no pod do Dex
+          env:
+            - name: GITHUB_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: argocd-github-secret
+                  key: oidc.github.clientSecret
+
         configs:
           cm:
             url: https://argocd.justgui.dev
-            # Insecure: deixa o nginx fazer o TLS termination
-            server.insecure: "true"
+
             server.disable.auth: "false"
             server.x-frame-options: "SAMEORIGIN"
 
-            oidc.config: |
-              name: GitHub
-              issuer: https://token.actions.githubusercontent.com
-              clientID: Ov23liFXjakC9R71jUAJ
-              clientSecret: $oidc.github.clientSecret
-              scopes:
-                - openid
-                - profile
-                - email
+            # Dex como broker OIDC para o GitHub OAuth
+            dex.config: |
+              connectors:
+                - type: github
+                  id: github
+                  name: GitHub
+                  config:
+                    clientID: Ov23liFXjakC9R71jUAJ
+                    clientSecret: $GITHUB_CLIENT_SECRET
+                    redirectURI: https://argocd.justgui.dev/api/dex/callback
 
           rbac:
             policy.default: role:readonly
             policy.csv: |
               g, justgu1, role:admin
-
-          secret:
-            oidc.github.clientSecret: $oidc.github.clientSecret
 
   ignoreDifferences:
     - group: apiextensions.k8s.io
