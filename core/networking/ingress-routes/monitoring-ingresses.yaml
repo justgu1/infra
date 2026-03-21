@@ -1,4 +1,6 @@
 ---
+# Prometheus — protegido via Authentik Forward Auth
+# O Authentik embedded outpost intercepta e autentica antes de passar ao backend.
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -6,9 +8,13 @@ metadata:
   namespace: monitoring
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
-    nginx.ingress.kubernetes.io/auth-url: "https://oauth2-proxy.justgui.dev/oauth2/auth"
-    nginx.ingress.kubernetes.io/auth-signin: "https://oauth2-proxy.justgui.dev/oauth2/start?rd=$scheme://$host$request_uri"
-    nginx.ingress.kubernetes.io/auth-response-headers: "X-Auth-Request-User,X-Auth-Request-Email,X-Auth-Request-Access-Token"
+    nginx.ingress.kubernetes.io/auth-url: "https://auth.justgui.dev/outpost.goauthentik.io/auth/nginx"
+    nginx.ingress.kubernetes.io/auth-signin: "https://auth.justgui.dev/outpost.goauthentik.io/start?rd=$scheme://$host$request_uri"
+    nginx.ingress.kubernetes.io/auth-response-headers: >-
+      Set-Cookie,X-authentik-username,X-authentik-groups,
+      X-authentik-email,X-authentik-name,X-authentik-uid
+    nginx.ingress.kubernetes.io/auth-snippet: |
+      proxy_set_header X-Original-URL $scheme://$host$request_uri;
 spec:
   ingressClassName: nginx
   tls:
@@ -27,6 +33,7 @@ spec:
                 port:
                   number: 9090
 ---
+# Alertmanager — protegido via Authentik Forward Auth
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -34,9 +41,13 @@ metadata:
   namespace: monitoring
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
-    nginx.ingress.kubernetes.io/auth-url: "https://oauth2-proxy.justgui.dev/oauth2/auth"
-    nginx.ingress.kubernetes.io/auth-signin: "https://oauth2-proxy.justgui.dev/oauth2/start?rd=$scheme://$host$request_uri"
-    nginx.ingress.kubernetes.io/auth-response-headers: "X-Auth-Request-User,X-Auth-Request-Email,X-Auth-Request-Access-Token"
+    nginx.ingress.kubernetes.io/auth-url: "https://auth.justgui.dev/outpost.goauthentik.io/auth/nginx"
+    nginx.ingress.kubernetes.io/auth-signin: "https://auth.justgui.dev/outpost.goauthentik.io/start?rd=$scheme://$host$request_uri"
+    nginx.ingress.kubernetes.io/auth-response-headers: >-
+      Set-Cookie,X-authentik-username,X-authentik-groups,
+      X-authentik-email,X-authentik-name,X-authentik-uid
+    nginx.ingress.kubernetes.io/auth-snippet: |
+      proxy_set_header X-Original-URL $scheme://$host$request_uri;
 spec:
   ingressClassName: nginx
   tls:
@@ -55,6 +66,8 @@ spec:
                 port:
                   number: 9093
 ---
+# Grafana — OIDC direto (generic_oauth no grafana.ini)
+# Sem proxy na frente; o Grafana trata o callback /login/generic_oauth ele mesmo.
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -62,9 +75,8 @@ metadata:
   namespace: monitoring
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
-    nginx.ingress.kubernetes.io/auth-url: "https://oauth2-proxy.justgui.dev/oauth2/auth"
-    nginx.ingress.kubernetes.io/auth-signin: "https://oauth2-proxy.justgui.dev/oauth2/start?rd=$scheme://$host$request_uri"
-    nginx.ingress.kubernetes.io/auth-response-headers: "X-Auth-Request-User,X-Auth-Request-Email,X-Auth-Request-Access-Token"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 spec:
   ingressClassName: nginx
   tls:
@@ -80,30 +92,5 @@ spec:
             backend:
               service:
                 name: monitoring-grafana
-                port:
-                  number: 80
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: oauth2-proxy
-  namespace: monitoring
-  annotations:
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
-spec:
-  ingressClassName: nginx
-  tls:
-    - secretName: oauth2-proxy-tls
-      hosts:
-        - oauth2-proxy.justgui.dev
-  rules:
-    - host: oauth2-proxy.justgui.dev
-      http:
-        paths:
-          - path: /oauth2
-            pathType: Prefix
-            backend:
-              service:
-                name: oauth2-proxy
                 port:
                   number: 80

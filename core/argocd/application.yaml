@@ -41,27 +41,30 @@ spec:
           enabled: false
 
         dex:
-          enabled: true
+          enabled: false
 
         configs:
           cm:
             url: https://argocd.justgui.dev
             server.disable.auth: "false"
             server.x-frame-options: "SAMEORIGIN"
-            dex.config: |
-              issuer: https://argocd.justgui.dev/api/dex
-              connectors:
-                - type: github
-                  id: github
-                  name: GitHub
-                  config:
-                    clientID: Ov23liCJzmlbF6BmYJEO
-                    clientSecret: $dex.github.clientSecret
-                    redirectURI: https://argocd.justgui.dev/api/dex/callback
+
+            oidc.config: |
+              name: Authentik
+              issuer: https://auth.justgui.dev/application/o/argocd/
+              clientID: $oidc.authentik.clientID
+              clientSecret: $oidc.authentik.clientSecret
+              requestedScopes:
+                - openid
+                - profile
+                - email
+              requestedIDTokenClaims:
+                email:
+                  essential: true
 
           rbac:
             policy.default: role:readonly
-            scopes: '[email, groups]'
+            scopes: '[email]'
             policy.csv: |
               g, tkzebrola@gmail.com, role:admin
 
