@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: platform
+  namespace: argocd
+spec:
+  description: Platform services (auth, storage, secrets)
+  sourceRepos:
+    - https://github.com/justgu1/authentik
+    - https://github.com/justgu1/minio
+    - https://github.com/justgu1/passbolt
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: platform-authentik
+    - server: https://kubernetes.default.svc
+      namespace: platform-minio
+    - server: https://kubernetes.default.svc
+      namespace: platform-passbolt
+  clusterResourceWhitelist:
+    - group: ''
+      kind: Namespace
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: platform
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/justgu1/infra
+    targetRevision: HEAD
+    path: platform
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
