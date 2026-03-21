@@ -40,15 +40,13 @@ spec:
         
         configs:
           cm:
-            # HTTPS URL
             url: https://argocd.justgui.dev
             
-            # Informar proxy reverso HTTPS
-            server.secure: false
+            server.secure: true
+            server.insecure: false
             server.disable.auth: false
             server.x-frame-options: "SAMEORIGIN"
             
-            # GitHub OIDC
             oidc.config: |
               name: GitHub
               issuer: https://token.actions.githubusercontent.com

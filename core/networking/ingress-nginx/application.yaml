@@ -15,7 +15,7 @@ spec:
       values: |
         controller:
           service:
-            type: LoadBalancer
+            type: ClusterIP
   destination:
     server: https://kubernetes.default.svc
     namespace: ingress-nginx
