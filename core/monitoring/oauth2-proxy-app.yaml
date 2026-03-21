@@ -39,6 +39,14 @@ spec:
         ingress:
           enabled: false
 
+  ignoreDifferences:
+    - group: networking.k8s.io
+      kind: Ingress
+      name: oauth2-proxy
+      namespace: monitoring
+      jsonPointers:
+        - /spec
+
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
