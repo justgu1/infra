@@ -11,6 +11,7 @@ spec:
     - git@github.com:justgu1/minio.git
     - git@github.com:justgu1/passbolt.git
     - https://charts.goauthentik.io
+    - https://charts.bitnami.com/bitnami
   destinations:
     - server: https://kubernetes.default.svc
       namespace: argocd
