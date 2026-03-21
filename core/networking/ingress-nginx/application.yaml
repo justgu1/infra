@@ -5,6 +5,7 @@ metadata:
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "0"
+
 spec:
   project: default
   source:
@@ -15,7 +16,7 @@ spec:
       values: |
         controller:
           service:
-            type: ClusterIP
+            type: LoadBalancer
   destination:
     server: https://kubernetes.default.svc
     namespace: ingress-nginx
