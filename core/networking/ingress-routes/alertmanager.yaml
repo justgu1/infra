@@ -5,18 +5,26 @@ metadata:
   namespace: monitoring
   annotations:
     argocd.argoproj.io/sync-wave: "0"
-    
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/auth-type: "basic"
+    nginx.ingress.kubernetes.io/auth-secret: "monitoring-basic-auth"
+    nginx.ingress.kubernetes.io/auth-realm: "Alertmanager"
 spec:
   ingressClassName: nginx
+  
+  tls:
+    - secretName: alertmanager-tls
+      hosts:
+        - alertmanager.justgui.dev
 
   rules:
-  - host: alertmanager.local
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: monitoring-kube-prometheus-alertmanager
-            port:
-              number: 9093
+    - host: alertmanager.justgui.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: monitoring-kube-prometheus-alertmanager
+                port:
+                  number: 9093

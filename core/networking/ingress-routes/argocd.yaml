@@ -4,18 +4,32 @@ metadata:
   name: argocd
   namespace: argocd
   annotations:
+    # Backend is HTTP, ingress handles HTTPS
     nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    # Redirect HTTP → HTTPS
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    # For gRPC endpoints used by ArgoCD CLI
+    nginx.ingress.kubernetes.io/websocket-services: "argocd-server"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
   ingressClassName: nginx
+  
+  # TLS certificado (cert-manager vai gerar automaticamente)
+  tls:
+    - secretName: argocd-tls
+      hosts:
+        - argocd.justgui.dev
+
   rules:
-  - host: argocd.local
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: argocd-server
-            port:
-              number: 80
+    - host: argocd.justgui.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: argocd-server
+                port:
+                  number: 80

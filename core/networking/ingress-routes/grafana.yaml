@@ -5,17 +5,23 @@ metadata:
   namespace: monitoring
   annotations:
     argocd.argoproj.io/sync-wave: "0"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
   ingressClassName: nginx
+  
+  tls:
+    - secretName: grafana-tls
+      hosts:
+        - grafana.justgui.dev
 
   rules:
-  - host: grafana.local
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: monitoring-grafana
-            port:
-              number: 80
+    - host: grafana.justgui.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: monitoring-grafana
+                port:
+                  number: 80

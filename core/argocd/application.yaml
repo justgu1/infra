@@ -14,8 +14,33 @@ spec:
         server:
           extraArgs:
             - --insecure
+          
+          replicas: 2
+          autoscaling:
+            enabled: true
+            minReplicas: 2
+            maxReplicas: 5
+        
+        repoServer:
+          replicas: 2
+          autoscaling:
+            enabled: true
+            minReplicas: 2
+            maxReplicas: 5
+        
+        controller:
+          replicas: 1
+        
+        redis:
+          enabled: true
+          replicas: 1
+          master:
+            persistence:
+              enabled: false
+        
         redisSecretInit:
           enabled: false
+        
         configs:
           cm:
             url: http://argocd.local
@@ -28,10 +53,12 @@ spec:
                     clientID: Ov23liFXjakC9R71jUAJ
                     clientSecret: $oidc.github.clientSecret
                     orgs: []
+          
           rbac:
             policy.default: role:readonly
             policy.csv: |
               g, justgu1, role:admin
+
   ignoreDifferences:
     - group: apiextensions.k8s.io
       kind: CustomResourceDefinition
@@ -40,9 +67,11 @@ spec:
         - /spec/preserveUnknownFields
         - /spec/conversion
         - /spec/versions
+
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
+
   syncPolicy:
     automated:
       prune: true
