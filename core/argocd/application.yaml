@@ -55,7 +55,7 @@ spec:
                   id: github
                   name: GitHub
                   config:
-                    clientID: Ov23liFXjakC9R71jUAJ
+                    clientID: Ov23liCJzmlbF6BmYJEO
                     clientSecret: $dex.github.clientSecret
                     redirectURI: https://argocd.justgui.dev/api/dex/callback
 
