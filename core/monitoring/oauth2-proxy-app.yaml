@@ -12,17 +12,16 @@ spec:
     helm:
       valuesObject:
         config:
-          clientID: Ov23lixcbjpM3kmWL6t9
-          clientSecret: ""
-          cookieSecret: ""
           existingSecret: oauth2-proxy-secret
           configFile: |-
             email_domains = [ "*" ]
             upstreams = [ "file:///dev/null" ]
             github_users = [ "justgu1" ]
             cookie_secure = true
-            cookie_samesite = "lax"
+            cookie_samesite = "none"
+            cookie_domain = ".justgui.dev"
             skip_provider_button = true
+            reverse_proxy = true
 
         extraArgs:
           - --provider=github
@@ -30,6 +29,7 @@ spec:
           - --whitelist-domain=.justgui.dev
           - --set-xauthrequest=true
           - --pass-access-token=true
+          - --cookie-name=_oauth2_proxy
 
         service:
           type: ClusterIP
@@ -38,14 +38,6 @@ spec:
 
         ingress:
           enabled: false
-          ingressClassName: nginx
-          hostname: oauth2-proxy.justgui.dev
-          annotations:
-            cert-manager.io/cluster-issuer: "letsencrypt-prod"
-          tls:
-            - secretName: oauth2-proxy-tls
-              hosts:
-                - oauth2-proxy.justgui.dev
 
   destination:
     server: https://kubernetes.default.svc
