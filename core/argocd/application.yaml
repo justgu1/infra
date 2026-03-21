@@ -42,22 +42,12 @@ spec:
 
         dex:
           enabled: true
-          # Injeta o clientSecret do SealedSecret como variável de ambiente no pod do Dex
-          env:
-            - name: GITHUB_CLIENT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: argocd-github-secret
-                  key: oidc.github.clientSecret
 
         configs:
           cm:
             url: https://argocd.justgui.dev
-
             server.disable.auth: "false"
             server.x-frame-options: "SAMEORIGIN"
-
-            # Dex como broker OIDC para o GitHub OAuth
             dex.config: |
               connectors:
                 - type: github
@@ -65,7 +55,7 @@ spec:
                   name: GitHub
                   config:
                     clientID: Ov23liFXjakC9R71jUAJ
-                    clientSecret: $GITHUB_CLIENT_SECRET
+                    clientSecret: $dex.github.clientSecret
                     redirectURI: https://argocd.justgui.dev/api/dex/callback
 
           rbac:
