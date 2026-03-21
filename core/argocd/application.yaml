@@ -13,40 +13,42 @@ spec:
       valuesObject:
         server:
           replicas: 2
+          # TLS é terminado no nginx. O argocd-server roda em HTTP puro internamente.
+          extraArgs:
+            - --insecure
           autoscaling:
             enabled: true
             minReplicas: 2
             maxReplicas: 5
-        
+
         repoServer:
           replicas: 2
           autoscaling:
             enabled: true
             minReplicas: 2
             maxReplicas: 5
-        
+
         controller:
           replicas: 1
-        
+
         redis:
           enabled: true
           replicas: 1
           master:
             persistence:
               enabled: false
-        
+
         redisSecretInit:
           enabled: false
-        
+
         configs:
           cm:
             url: https://argocd.justgui.dev
-            
-            server.secure: true
-            server.insecure: false
-            server.disable.auth: false
+            # Insecure: deixa o nginx fazer o TLS termination
+            server.insecure: "true"
+            server.disable.auth: "false"
             server.x-frame-options: "SAMEORIGIN"
-            
+
             oidc.config: |
               name: GitHub
               issuer: https://token.actions.githubusercontent.com
@@ -56,12 +58,12 @@ spec:
                 - openid
                 - profile
                 - email
-          
+
           rbac:
             policy.default: role:readonly
             policy.csv: |
               g, justgu1, role:admin
-          
+
           secret:
             oidc.github.clientSecret: $oidc.github.clientSecret
 
