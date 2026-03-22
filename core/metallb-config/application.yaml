@@ -1,23 +1,25 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: metallb
+  name: metallb-config
   namespace: argocd
-  argocd.argoproj.io/sync-wave: "0"
+  argocd.argoproj.io/sync-wave: "1"
 spec:
   project: default
+
   source:
-    repoURL: git@github.com:justgu1/kubernetes-core.git
+    repoURL: https://github.com/justgu1/infra
     targetRevision: main
-    path: networking/metallb
-    directory:
-      recurse: true
+    path: core/metallb-config/manifests
+
   destination:
     server: https://kubernetes.default.svc
     namespace: metallb-system
+
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
-    retry:
-      limit: 0
+
+  syncOptions:
+    - CreateNamespace=true
