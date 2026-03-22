@@ -11,7 +11,6 @@ spec:
     path: core
     directory:
       recurse: true
-      include: '{*/application.yaml,*/resources.yaml}'
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd

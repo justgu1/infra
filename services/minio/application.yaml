@@ -1,21 +1,23 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: passbolt
+  name: minio
   namespace: argocd
 spec:
   project: platform
   source:
-    repoURL: git@github.com:justgu1/passbolt.git
+    repoURL: git@github.com:justgu1/kubernetes-services.git
     targetRevision: main
-    path: .
+    path: minio
+    helm:
+      chart: aistor-operator
+      repoURL: https://helm.min.io/
+      valueFiles:
+        - values.yaml
   destination:
     server: https://kubernetes.default.svc
-    namespace: platform-passbolt
+    namespace: minio
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-      - ServerSideApply=true

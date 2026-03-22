@@ -6,43 +6,11 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://prometheus-community.github.io/helm-charts
-    chart: kube-prometheus-stack
-    targetRevision: 70.4.2
-    helm:
-      valuesObject:
-        grafana:
-          adminPassword: admin
-
-          envFromSecret: grafana-oidc-secret
-
-          grafana.ini:
-            server:
-              root_url: https://grafana.justgui.dev
-
-            auth:
-              disable_login_form: false          # mantém fallback local para emergências
-              signout_redirect_url: "https://auth.justgui.dev/application/o/grafana/end-session/"
-
-            auth.generic_oauth:
-              enabled: true
-              name: Authentik
-              icon: signin
-              client_id: ${GF_AUTH_GENERIC_OAUTH_CLIENT_ID}
-              client_secret: ${GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET}
-              scopes: openid profile email
-              auth_url: https://auth.justgui.dev/application/o/authorize/
-              token_url: https://auth.justgui.dev/application/o/token/
-              api_url: https://auth.justgui.dev/application/o/userinfo/
-              # Mapeia grupos do Authentik para roles do Grafana
-              role_attribute_path: contains(groups[*], 'platform-admins') && 'Admin' || 'Viewer'
-              allow_sign_up: true
-              use_pkce: true
-
-            users:
-              auto_assign_org: true
-              auto_assign_org_role: Viewer   # role padrão; admins sobem via role_attribute_path
-
+    repoURL: git@github.com:justgu1/kubernetes-core.git
+    targetRevision: main
+    path: monitoring
+    directory:
+      recurse: true
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
@@ -50,6 +18,5 @@ spec:
     automated:
       prune: true
       selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-      - ServerSideApply=true
+    retry:
+      limit: 0

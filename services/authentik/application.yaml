@@ -6,16 +6,18 @@ metadata:
 spec:
   project: platform
   source:
-    repoURL: git@github.com:justgu1/authentik.git
+    repoURL: git@github.com:justgu1/kubernetes-services.git
     targetRevision: main
-    path: .
+    path: authentik
+    helm:
+      chart: authentik
+      repoURL: https://charts.goauthentik.io/
+      valueFiles:
+        - values.yaml
   destination:
     server: https://kubernetes.default.svc
-    namespace: platform-authentik
+    namespace: authentik
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-      - ServerSideApply=true

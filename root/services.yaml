@@ -1,21 +1,20 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: monitoring-resources
+  name: services
   namespace: argocd
-  annotations:
-    argocd.argoproj.io/sync-wave: "1"
 spec:
   project: default
   source:
     repoURL: https://github.com/justgu1/infra
     targetRevision: main
-    path: core/monitoring
+    path: services
     directory:
-      exclude: 'application.yaml'
+      recurse: true
+      include: '*/application.yaml'
   destination:
     server: https://kubernetes.default.svc
-    namespace: monitoring
+    namespace: argocd
   syncPolicy:
     automated:
       prune: true

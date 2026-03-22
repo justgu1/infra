@@ -1,18 +1,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: argocd-resources
+  name: apps
   namespace: argocd
-  annotations:
-    argocd.argoproj.io/sync-wave: "1"
 spec:
   project: default
   source:
     repoURL: https://github.com/justgu1/infra
     targetRevision: main
-    path: core/argocd
+    path: apps
     directory:
-      exclude: 'application.yaml'
+      recurse: true
+      include: '*/application.yaml'
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
