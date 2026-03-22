@@ -1,4 +1,18 @@
 ---
+# Service ExternalName — aponta para o Authentik no namespace platform-authentik
+# Necessário para o ingress rotear /outpost.goauthentik.io para o Authentik
+apiVersion: v1
+kind: Service
+metadata:
+  name: authentik-outpost
+  namespace: monitoring
+spec:
+  type: ExternalName
+  externalName: authentik-helm-server.platform-authentik.svc.cluster.local
+  ports:
+    - port: 80
+---
+# Prometheus — protegido via Authentik Forward Auth
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -19,6 +33,13 @@ spec:
     - host: prometheus.justgui.dev
       http:
         paths:
+          - path: /outpost.goauthentik.io
+            pathType: Prefix
+            backend:
+              service:
+                name: authentik-outpost
+                port:
+                  number: 80
           - path: /
             pathType: Prefix
             backend:
@@ -27,6 +48,7 @@ spec:
                 port:
                   number: 9090
 ---
+# Alertmanager — protegido via Authentik Forward Auth
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -47,6 +69,13 @@ spec:
     - host: alertmanager.justgui.dev
       http:
         paths:
+          - path: /outpost.goauthentik.io
+            pathType: Prefix
+            backend:
+              service:
+                name: authentik-outpost
+                port:
+                  number: 80
           - path: /
             pathType: Prefix
             backend:
@@ -55,6 +84,7 @@ spec:
                 port:
                   number: 9093
 ---
+# Grafana — OIDC direto (sem proxy)
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
