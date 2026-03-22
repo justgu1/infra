@@ -24,7 +24,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: minio
+                name: minio-helm
                 port:
                   number: 9000
 ---
@@ -54,6 +54,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: minio
+                name: minio-helm-console
                 port:
                   number: 9001
