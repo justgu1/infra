@@ -12,7 +12,7 @@ spec:
     targetRevision: main
     path: .
     directory:
-      exclude: 'application.yaml'
+      exclude: ''
   destination:
     server: https://kubernetes.default.svc
     namespace: platform-minio
