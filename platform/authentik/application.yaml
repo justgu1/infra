@@ -7,7 +7,7 @@ spec:
   project: platform
   source:
     repoURL: git@github.com:justgu1/authentik.git
-    targetRevision: HEAD
+    targetRevision: main
     path: .
   destination:
     server: https://kubernetes.default.svc

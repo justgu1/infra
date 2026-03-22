@@ -40,7 +40,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/justgu1/infra
-    targetRevision: HEAD
+    targetRevision: main
     path: platform
     directory:
       recurse: true
