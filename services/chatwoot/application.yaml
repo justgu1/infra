@@ -4,7 +4,7 @@ metadata:
   name: chatwoot
   namespace: argocd
 spec:
-  project: platform
+  project: services
   source:
     repoURL: git@github.com:justgu1/kubernetes-services.git
     targetRevision: main
