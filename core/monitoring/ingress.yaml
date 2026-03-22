@@ -34,7 +34,7 @@ spec:
       http:
         paths:
           - path: /outpost.goauthentik.io
-            pathType: Prefix
+            pathType: ImplementationSpecific
             backend:
               service:
                 name: authentik-outpost
@@ -70,7 +70,7 @@ spec:
       http:
         paths:
           - path: /outpost.goauthentik.io
-            pathType: Prefix
+            pathType: ImplementationSpecific
             backend:
               service:
                 name: authentik-outpost
