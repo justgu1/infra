@@ -1,0 +1,59 @@
+---
+# MinIO API — endpoint S3
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: minio-api
+  namespace: platform-minio
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+spec:
+  ingressClassName: nginx
+  tls:
+    - secretName: minio-api-tls
+      hosts:
+        - minio.justgui.dev
+  rules:
+    - host: minio.justgui.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: minio
+                port:
+                  number: 9000
+---
+# MinIO Console — UI + OIDC callback
+# Em v17+ o console roda como deployment separado com service próprio: <release>-minio-console
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: minio-console
+  namespace: platform-minio
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+spec:
+  ingressClassName: nginx
+  tls:
+    - secretName: minio-console-tls
+      hosts:
+        - minio-console.justgui.dev
+  rules:
+    - host: minio-console.justgui.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: minio-console   # service gerado pelo chart v17 para o console
+                port:
+                  number: 9001

@@ -7,7 +7,6 @@ metadata:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-    # Necessário para o Authentik processar headers de proxy corretamente
     nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
 spec:
   ingressClassName: nginx
