@@ -12,6 +12,7 @@ spec:
     - git@github.com:justgu1/passbolt.git
     - https://charts.goauthentik.io
     - https://charts.bitnami.com/bitnami
+    - https://charts.min.io
     - https://download.passbolt.com/charts/passbolt
   destinations:
     - server: https://kubernetes.default.svc
