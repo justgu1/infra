@@ -54,6 +54,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: minio-console   # service gerado pelo chart v17 para o console
+                name: minio
                 port:
                   number: 9001
