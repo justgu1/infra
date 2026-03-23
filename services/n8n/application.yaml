@@ -6,7 +6,7 @@ metadata:
 spec:
   project: services
   sources:
-    - repoURL: https://n8n-io.github.io/n8n-helm-chart
+    - repoURL: https://community-charts.github.io/helm-charts
       chart: n8n
       targetRevision: "*"
       helm:
