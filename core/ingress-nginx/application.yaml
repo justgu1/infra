@@ -13,6 +13,12 @@ spec:
     targetRevision: "*"
     helm:
       releaseName: ingress-nginx
+      values: |
+        controller:
+          hostPort:
+            enabled: true
+          service:
+            type: ClusterIP
   destination:
     server: https://kubernetes.default.svc
     namespace: ingress-nginx
