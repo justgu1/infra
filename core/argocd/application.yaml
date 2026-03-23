@@ -5,15 +5,10 @@ metadata:
   namespace: argocd
 spec:
   project: core
-  sources:
-    - repoURL: git@github.com:justgu1/core.git
-      targetRevision: main
-      path: argocd
-      directory:
-        recurse: true
-    - repoURL: https://github.com/justgu1/infra
-      targetRevision: main
-      path: core/argocd/manifests
+  source:
+    repoURL: git@github.com:justgu1/infra.git
+    targetRevision: main
+    path: core/argocd/manifests
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
