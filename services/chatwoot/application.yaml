@@ -5,15 +5,17 @@ metadata:
   namespace: argocd
 spec:
   project: services
-  source:
-    repoURL: git@github.com:justgu1/kubernetes-services.git
-    targetRevision: main
-    path: chatwoot
-    helm:
+  sources:
+    - repoURL: https://chatwoot.github.io/charts
       chart: chatwoot
-      repoURL: https://charts.chatwoot.com/
-      valueFiles:
-        - values.yaml
+      targetRevision: "*"
+      helm:
+        releaseName: chatwoot
+        valueFiles:
+          - $values/chatwoot/values.yaml
+    - repoURL: git@github.com:justgu1/kubernetes-services.git
+      targetRevision: main
+      ref: values
   destination:
     server: https://kubernetes.default.svc
     namespace: chatwoot
@@ -21,3 +23,5 @@ spec:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

@@ -5,15 +5,17 @@ metadata:
   namespace: argocd
 spec:
   project: services
-  source:
-    repoURL: git@github.com:justgu1/kubernetes-services.git
-    targetRevision: main
-    path: n8n
-    helm:
+  sources:
+    - repoURL: https://n8n-io.github.io/n8n-helm/
       chart: n8n
-      repoURL: https://n8n-io.github.io/n8n-helm/
-      valueFiles:
-        - values.yaml
+      targetRevision: "*"
+      helm:
+        releaseName: n8n
+        valueFiles:
+          - $values/n8n/values.yaml
+    - repoURL: git@github.com:justgu1/kubernetes-services.git
+      targetRevision: main
+      ref: values
   destination:
     server: https://kubernetes.default.svc
     namespace: n8n
@@ -21,3 +23,5 @@ spec:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

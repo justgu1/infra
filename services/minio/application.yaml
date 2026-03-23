@@ -5,15 +5,17 @@ metadata:
   namespace: argocd
 spec:
   project: services
-  source:
-    repoURL: git@github.com:justgu1/kubernetes-services.git
-    targetRevision: main
-    path: minio
-    helm:
-      chart: aistor-operator
-      repoURL: https://helm.min.io/
-      valueFiles:
-        - values.yaml
+  sources:
+    - repoURL: https://charts.min.io/
+      chart: minio
+      targetRevision: "*"
+      helm:
+        releaseName: minio
+        valueFiles:
+          - $values/minio/values.yaml
+    - repoURL: git@github.com:justgu1/kubernetes-services.git
+      targetRevision: main
+      ref: values
   destination:
     server: https://kubernetes.default.svc
     namespace: minio
@@ -21,3 +23,5 @@ spec:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

@@ -5,15 +5,17 @@ metadata:
   namespace: argocd
 spec:
   project: services
-  source:
-    repoURL: git@github.com:justgu1/kubernetes-services.git
-    targetRevision: main
-    path: passbolt
-    helm:
+  sources:
+    - repoURL: https://download.passbolt.com/charts/passbolt
       chart: passbolt
-      repoURL: https://download.passbolt.com/charts/
-      valueFiles:
-        - values.yaml
+      targetRevision: "*"
+      helm:
+        releaseName: passbolt
+        valueFiles:
+          - $values/passbolt/values.yaml
+    - repoURL: git@github.com:justgu1/kubernetes-services.git
+      targetRevision: main
+      ref: values
   destination:
     server: https://kubernetes.default.svc
     namespace: passbolt
@@ -21,3 +23,5 @@ spec:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

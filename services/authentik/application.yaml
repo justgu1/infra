@@ -5,15 +5,17 @@ metadata:
   namespace: argocd
 spec:
   project: services
-  source:
-    repoURL: git@github.com:justgu1/kubernetes-services.git
-    targetRevision: main
-    path: authentik
-    helm:
+  sources:
+    - repoURL: https://charts.goauthentik.io/
       chart: authentik
-      repoURL: https://charts.goauthentik.io/
-      valueFiles:
-        - values.yaml
+      targetRevision: "*"
+      helm:
+        releaseName: authentik
+        valueFiles:
+          - $values/authentik/values.yaml
+    - repoURL: git@github.com:justgu1/kubernetes-services.git
+      targetRevision: main
+      ref: values
   destination:
     server: https://kubernetes.default.svc
     namespace: authentik
