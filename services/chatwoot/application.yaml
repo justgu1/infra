@@ -16,6 +16,9 @@ spec:
     - repoURL: git@github.com:justgu1/kubernetes-services.git
       targetRevision: main
       ref: values
+    - repoURL: git@github.com:justgu1/kubernetes-services.git
+      targetRevision: main
+      path: chatwoot
   destination:
     server: https://kubernetes.default.svc
     namespace: chatwoot
