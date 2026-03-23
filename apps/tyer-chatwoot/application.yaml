@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tyer-chatwoot
+  namespace: argocd
+spec:
+  project: apps
+  source:
+    repoURL: https://github.com/justgu1/tyer-chatwoot.git
+    targetRevision: main
+    path: .
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: chatwoot-tyer
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
