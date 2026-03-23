@@ -5,10 +5,10 @@ metadata:
   namespace: argocd
 spec:
   project: apps
-  source:
-    repoURL: git@github.com:justgu1/tyer-chatwoot.git
-    targetRevision: main
-    path: .
+  sources:
+    - repoURL: git@github.com:justgu1/tyer-chatwoot.git
+      targetRevision: main
+      path: .
   destination:
     server: https://kubernetes.default.svc
     namespace: chatwoot-tyer
