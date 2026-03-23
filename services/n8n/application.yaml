@@ -16,6 +16,9 @@ spec:
     - repoURL: git@github.com:justgu1/kubernetes-services.git
       targetRevision: main
       ref: values
+    - repoURL: git@github.com:justgu1/kubernetes-services.git
+      targetRevision: main
+      path: n8n
   destination:
     server: https://kubernetes.default.svc
     namespace: n8n
