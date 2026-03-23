@@ -4,13 +4,16 @@ metadata:
   name: monitoring
   namespace: argocd
 spec:
-  project: default
-  source:
-    repoURL: git@github.com:justgu1/kubernetes-core.git
-    targetRevision: main
-    path: monitoring
-    directory:
-      recurse: true
+  project: core
+  sources:
+    - repoURL: git@github.com:justgu1/kubernetes-core.git
+      targetRevision: main
+      path: monitoring
+      directory:
+        recurse: true
+    - repoURL: https://github.com/justgu1/infra
+      targetRevision: main
+      path: core/monitoring/manifests
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
@@ -18,5 +21,7 @@ spec:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
     retry:
       limit: 0

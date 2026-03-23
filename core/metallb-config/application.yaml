@@ -6,17 +6,14 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "1"
 spec:
-  project: default
-
+  project: core
   source:
     repoURL: https://github.com/justgu1/infra
     targetRevision: main
     path: core/metallb-config/manifests
-
   destination:
     server: https://kubernetes.default.svc
     namespace: metallb-system
-
   syncPolicy:
     automated:
       prune: true

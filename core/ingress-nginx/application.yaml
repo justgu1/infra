@@ -1,19 +1,22 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: ingress-nginx
+  name: argocd
   namespace: argocd
 spec:
-  project: default
-  source:
-    repoURL: git@github.com:justgu1/kubernetes-core.git
-    targetRevision: main
-    path: networking/ingress-nginx
-    directory:
-      recurse: true
+  project: core
+  sources:
+    - repoURL: git@github.com:justgu1/kubernetes-core.git
+      targetRevision: main
+      path: argocd
+      directory:
+        recurse: true
+    - repoURL: https://github.com/justgu1/infra
+      targetRevision: main
+      path: core/argocd/manifests
   destination:
     server: https://kubernetes.default.svc
-    namespace: ingress-nginx
+    namespace: argocd
   syncPolicy:
     automated:
       prune: true

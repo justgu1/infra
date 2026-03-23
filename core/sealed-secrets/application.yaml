@@ -4,19 +4,19 @@ metadata:
   name: sealed-secrets
   namespace: argocd
 spec:
-  project: default
+  project: core
   source:
-    repoURL: git@github.com:justgu1/kubernetes-core.git
-    targetRevision: main
-    path: sealed-secrets
-    directory:
-      recurse: true
+    repoURL: https://bitnami-labs.github.io/sealed-secrets
+    chart: sealed-secrets
+    targetRevision: "*"
+    helm:
+      releaseName: sealed-secrets
   destination:
     server: https://kubernetes.default.svc
-    namespace: kube-system
+    namespace: sealed-secrets
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
-    retry:
-      limit: 0
+    syncOptions:
+      - CreateNamespace=true

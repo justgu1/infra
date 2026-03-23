@@ -1,19 +1,18 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: apps
+  name: k8s-projects
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "0"
+    argocd.argoproj.io/sync-wave: "-1"
 spec:
   project: default
   source:
     repoURL: https://github.com/justgu1/infra
     targetRevision: main
-    path: apps
+    path: k8s-projects
     directory:
       recurse: true
-      include: '*/application.yaml'
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
@@ -21,5 +20,3 @@ spec:
     automated:
       prune: true
       selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
