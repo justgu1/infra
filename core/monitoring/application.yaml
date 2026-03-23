@@ -6,7 +6,7 @@ metadata:
 spec:
   project: core
   sources:
-    - repoURL: git@github.com:justgu1/kubernetes-core.git
+    - repoURL: git@github.com:justgu1/core.git
       targetRevision: main
       path: monitoring
       directory:
