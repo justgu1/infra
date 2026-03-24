@@ -8,7 +8,7 @@ spec:
   sources:
     - repoURL: git@github.com:justgu1/tyer-chatwoot.git
       targetRevision: main
-      path: .
+      path: overlays/production
   destination:
     server: https://kubernetes.default.svc
     namespace: chatwoot-tyer
