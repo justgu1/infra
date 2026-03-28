@@ -1,0 +1,124 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: n8n-workflows
+  namespace: n8n
+  annotations:
+    # Importado pelo Job n8n-workflow-provisioner (PostSync)
+    description: "Workflows de orquestração de jobs do cluster"
+data:
+  listings-updater.json: |
+    {
+      "name": "Listings Updater — Daily Sync",
+      "active": true,
+      "nodes": [
+        {
+          "id": "schedule",
+          "name": "Schedule (00:00 UTC-3)",
+          "type": "n8n-nodes-base.scheduleTrigger",
+          "position": [240, 300],
+          "parameters": {
+            "rule": {
+              "interval": [{ "field": "cronExpression", "expression": "0 3 * * *" }]
+            }
+          }
+        },
+        {
+          "id": "trigger-sync",
+          "name": "Trigger listings:sync",
+          "type": "n8n-nodes-base.httpRequest",
+          "position": [460, 300],
+          "parameters": {
+            "method": "POST",
+            "url": "http://hericarealtor.hericarealtor.svc.cluster.local/api/jobs/listings-sync",
+            "authentication": "predefinedCredentialType",
+            "nodeCredentialType": "httpHeaderAuth",
+            "sendHeaders": true,
+            "headerParameters": {
+              "parameters": [{ "name": "X-Internal-Token", "value": "={{ $credentials.password }}" }]
+            },
+            "options": { "timeout": 300000 }
+          }
+        },
+        {
+          "id": "check-result",
+          "name": "Job iniciado?",
+          "type": "n8n-nodes-base.if",
+          "position": [680, 300],
+          "parameters": {
+            "conditions": {
+              "number": [{ "value1": "={{ $json.status }}", "operation": "equal", "value2": 200 }]
+            }
+          }
+        },
+        {
+          "id": "alert-failure",
+          "name": "Alertar falha",
+          "type": "n8n-nodes-base.httpRequest",
+          "position": [900, 420],
+          "parameters": {
+            "method": "POST",
+            "url": "http://kube-prometheus-stack-alertmanager.monitoring.svc.cluster.local:9093/api/v1/alerts",
+            "sendBody": true,
+            "contentType": "json",
+            "body": "[{\"labels\":{\"alertname\":\"ListingsUpdaterFailed\",\"severity\":\"critical\",\"namespace\":\"hericarealtor\"},\"annotations\":{\"summary\":\"listings-updater falhou ao iniciar\",\"description\":\"{{ $json }}\"}}]"
+          }
+        }
+      ],
+      "connections": {
+        "Schedule (00:00 UTC-3)": { "main": [[{ "node": "Trigger listings:sync", "type": "main", "index": 0 }]] },
+        "Trigger listings:sync": { "main": [[{ "node": "Job iniciado?", "type": "main", "index": 0 }]] },
+        "Job iniciado?": {
+          "main": [
+            [],
+            [{ "node": "Alertar falha", "type": "main", "index": 0 }]
+          ]
+        }
+      }
+    }
+
+  whatsapp-updater.json: |
+    {
+      "name": "WhatsApp Updater — Daily",
+      "active": true,
+      "nodes": [
+        {
+          "id": "schedule",
+          "name": "Schedule (06:00 UTC-3)",
+          "type": "n8n-nodes-base.scheduleTrigger",
+          "position": [240, 300],
+          "parameters": {
+            "rule": {
+              "interval": [{ "field": "cronExpression", "expression": "0 9 * * *" }]
+            }
+          }
+        },
+        {
+          "id": "trigger-job",
+          "name": "Trigger whatsapp-updater",
+          "type": "n8n-nodes-base.httpRequest",
+          "position": [460, 300],
+          "parameters": {
+            "method": "POST",
+            "url": "http://kube-prometheus-stack-alertmanager.monitoring.svc.cluster.local:9093/api/v1/alerts",
+            "notes": "Substituir pela URL real quando tyer-chatwoot expuser webhook interno"
+          }
+        },
+        {
+          "id": "alert-failure",
+          "name": "Alertar falha",
+          "type": "n8n-nodes-base.httpRequest",
+          "position": [680, 420],
+          "parameters": {
+            "method": "POST",
+            "url": "http://kube-prometheus-stack-alertmanager.monitoring.svc.cluster.local:9093/api/v1/alerts",
+            "sendBody": true,
+            "contentType": "json",
+            "body": "[{\"labels\":{\"alertname\":\"WhatsappUpdaterFailed\",\"severity\":\"critical\",\"namespace\":\"tyer-chatwoot\"},\"annotations\":{\"summary\":\"whatsapp-updater falhou\"}}]"
+          }
+        }
+      ],
+      "connections": {
+        "Schedule (06:00 UTC-3)": { "main": [[{ "node": "Trigger whatsapp-updater", "type": "main", "index": 0 }]] }
+      }
+    }

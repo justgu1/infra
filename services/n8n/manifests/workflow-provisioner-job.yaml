@@ -1,0 +1,72 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: n8n-workflow-provisioner
+  namespace: n8n
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  ttlSecondsAfterFinished: 600
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: OnFailure
+      volumes:
+        - name: workflows
+          configMap:
+            name: n8n-workflows
+      containers:
+        - name: importer
+          image: curlimages/curl:latest
+          env:
+            - name: N8N_URL
+              value: "http://n8n.n8n.svc.cluster.local:5678"
+            - name: N8N_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: n8n-credentials
+                  key: N8N_API_KEY
+          volumeMounts:
+            - name: workflows
+              mountPath: /workflows
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+
+              echo "Aguardando n8n ficar disponível..."
+              until curl -sf -o /dev/null "$N8N_URL/healthz"; do
+                sleep 5
+              done
+              echo "n8n pronto."
+
+              import_workflow() {
+                local file="$1"
+                local name
+                name=$(cat "$file" | grep -o '"name":"[^"]*"' | head -1 | cut -d'"' -f4)
+                echo "Importando workflow: $name"
+
+                # Verificar se já existe
+                existing=$(curl -sf -H "X-N8N-API-KEY: $N8N_API_KEY" \
+                  "$N8N_URL/api/v1/workflows" | \
+                  grep -o "\"name\":\"$name\"" | head -1 || true)
+
+                if [ -n "$existing" ]; then
+                  echo "  ↩ '$name' já existe — pulando (edite manualmente se precisar atualizar)"
+                else
+                  curl -sf -X POST \
+                    -H "X-N8N-API-KEY: $N8N_API_KEY" \
+                    -H "Content-Type: application/json" \
+                    -d @"$file" \
+                    "$N8N_URL/api/v1/workflows"
+                  echo "  ✓ '$name' importado e ativado"
+                fi
+              }
+
+              for f in /workflows/*.json; do
+                import_workflow "$f"
+              done
+
+              echo "Todos os workflows provisionados."

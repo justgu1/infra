@@ -23,7 +23,8 @@ vault kv put secret/hericarealtor \
   AWS_ACCESS_KEY_ID="${MINIO_ACCESS_KEY:?}" \
   AWS_SECRET_ACCESS_KEY="${MINIO_SECRET_KEY:?}" \
   MAIL_USERNAME="${MAIL_USERNAME:-}" \
-  MAIL_PASSWORD="${MAIL_PASSWORD:-}"
+  MAIL_PASSWORD="${MAIL_PASSWORD:-}" \
+  N8N_INTERNAL_TOKEN="${N8N_INTERNAL_TOKEN:?}"
 
 echo "✓ secret/hericarealtor"
 
@@ -65,6 +66,14 @@ vault kv put secret/cluster/authentik-oauth \
   google_client_secret="${AUTHENTIK_GOOGLE_CLIENT_SECRET:?}"
 
 echo "✓ secret/cluster/authentik-oauth"
+
+# ─── n8n (API key para o workflow provisioner) ──────────────────────────────
+# Gere uma chave segura: openssl rand -hex 32
+vault kv put secret/cluster/n8n \
+  N8N_API_KEY="${N8N_API_KEY:?}" \
+  N8N_INTERNAL_TOKEN="${N8N_INTERNAL_TOKEN:?}"
+
+echo "✓ secret/cluster/n8n"
 
 echo ""
 echo "Todos os secrets populados com sucesso!"
