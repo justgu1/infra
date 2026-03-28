@@ -1,0 +1,19 @@
+{{- if .Values.metrics.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "app-base.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "app-base.labels" . | nindent 4 }}
+    # Label necessária para o Prometheus do kube-prometheus-stack descobrir
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      {{- include "app-base.selectorLabels" . | nindent 6 }}
+  endpoints:
+    - port: {{ .Values.metrics.port | default "metrics" }}
+      path: {{ .Values.metrics.path | default "/metrics" }}
+      interval: {{ .Values.metrics.interval | default "30s" }}
+{{- end }}

@@ -3,6 +3,8 @@ kind: Application
 metadata:
   name: authentik
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   project: services
   sources:
@@ -16,6 +18,9 @@ spec:
     - repoURL: git@github.com:justgu1/kubernetes-services.git
       targetRevision: main
       ref: values
+    - repoURL: https://github.com/justgu1/infra
+      targetRevision: main
+      path: services/authentik/manifests
   destination:
     server: https://kubernetes.default.svc
     namespace: authentik
@@ -23,3 +28,5 @@ spec:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

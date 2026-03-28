@@ -101,3 +101,17 @@ resources:
     limits:
       cpu: 100m
       memory: 64Mi
+
+# Forward Auth via Authentik
+# Quando enabled: true, o ingress requer autenticação pelo Authentik
+authentik:
+  enabled: false
+  host: authentik.justgui.dev
+
+# Prometheus ServiceMonitor
+# Requer que o app exponha /metrics em uma porta dedicada
+metrics:
+  enabled: false
+  port: metrics     # nome da porta no Service
+  path: /metrics
+  interval: 30s

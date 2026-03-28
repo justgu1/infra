@@ -55,6 +55,17 @@ vault kv put secret/cluster/smtp \
 
 echo "✓ secret/cluster/smtp"
 
+# ─── authentik (OAuth providers) ────────────────────────────────────────────
+# Os valores originais estavam em authentik-oauth-sources-sealed.yaml
+# Obtenha os valores no console do GitHub/Google OAuth apps
+vault kv put secret/cluster/authentik-oauth \
+  github_client_id="${AUTHENTIK_GITHUB_CLIENT_ID:?}" \
+  github_client_secret="${AUTHENTIK_GITHUB_CLIENT_SECRET:?}" \
+  google_client_id="${AUTHENTIK_GOOGLE_CLIENT_ID:?}" \
+  google_client_secret="${AUTHENTIK_GOOGLE_CLIENT_SECRET:?}"
+
+echo "✓ secret/cluster/authentik-oauth"
+
 echo ""
 echo "Todos os secrets populados com sucesso!"
 echo ""
