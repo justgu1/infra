@@ -32,6 +32,12 @@ ingress:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    # Bloqueia /api/jobs/* externamente — só acessível dentro do cluster (n8n)
+    nginx.ingress.kubernetes.io/server-snippet: |
+      location ~* ^/api/jobs/ {
+        deny all;
+        return 403;
+      }
   hosts:
     - host: hericarealtor.com
       paths:
