@@ -1,14 +1,14 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: hericarealtor
+  name: listings-updater
   namespace: argocd
 spec:
   project: apps
   source:
     repoURL: git@github.com:justgu1/justgu1.git
     targetRevision: main
-    path: apps/hericarealtor/k8s
+    path: apps/listings-updater/k8s
   destination:
     server: https://kubernetes.default.svc
     namespace: hericarealtor
