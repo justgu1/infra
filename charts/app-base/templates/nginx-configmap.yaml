@@ -1,0 +1,41 @@
+{{- if .Values.nginx.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "app-base.fullname" . }}-nginx
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "app-base.labels" . | nindent 4 }}
+data:
+  default.conf: |
+    server {
+        listen {{ .Values.nginx.port }};
+        server_name _;
+
+        root /var/www/public;
+        index index.php;
+
+        location / {
+            try_files $uri $uri/ /index.php?$query_string;
+        }
+
+        location ~ \.php$ {
+            include fastcgi_params;
+            fastcgi_pass 127.0.0.1:{{ .Values.fpm.port }};
+            fastcgi_index index.php;
+            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        }
+
+        location ~* \.(?:png|jpe?g|gif|ico|svg|webp|css|js|woff2?|ttf)$ {
+            try_files $uri =404;
+            access_log off;
+            expires 1y;
+        }
+
+        location /storage/ {
+            alias /var/www/storage/app/public/;
+            try_files $uri =404;
+            add_header Access-Control-Allow-Origin *;
+        }
+    }
+{{- end }}

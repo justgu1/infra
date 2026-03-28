@@ -1,0 +1,93 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/justgu1/hericarealtor
+  tag: latest
+
+serviceAccount:
+  create: true
+
+rbac:
+  enabled: true  # artisan listings:sync precisa criar Jobs via kubectl
+
+postgres:
+  enabled: true
+  database: hericarealtor_db
+  username: hericarealtor
+  storage: 10Gi
+
+redis:
+  enabled: true
+
+nginx:
+  enabled: true
+
+initContainers:
+  copyPublic: true
+  migrate:
+    enabled: true
+
+ingress:
+  enabled: true
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+  hosts:
+    - host: hericarealtor.com
+      paths:
+        - path: /
+          pathType: Prefix
+    - host: www.hericarealtor.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: hericarealtor-tls
+      hosts:
+        - hericarealtor.com
+        - www.hericarealtor.com
+
+configMap:
+  data:
+    APP_NAME: hericarealtor
+    APP_ENV: production
+    APP_DEBUG: "false"
+    APP_URL: https://hericarealtor.com
+    APP_LOCALE: en
+    APP_FALLBACK_LOCALE: en
+    LOG_CHANNEL: stack
+    LOG_STACK: daily
+    LOG_LEVEL: info
+    DB_CONNECTION: pgsql
+    DB_HOST: hericarealtor-postgres  # <release>-postgres (headless service)
+    DB_PORT: "5432"
+    DB_DATABASE: hericarealtor_db
+    DB_USERNAME: hericarealtor
+    SESSION_DRIVER: redis
+    SESSION_LIFETIME: "1200"
+    QUEUE_CONNECTION: redis
+    CACHE_STORE: redis
+    REDIS_CLIENT: phpredis
+    REDIS_HOST: hericarealtor-redis  # <release>-redis
+    REDIS_PORT: "6379"
+    FILESYSTEM_DISK: s3
+    AWS_DEFAULT_REGION: us-east-1
+    AWS_BUCKET: hericarealtor
+    AWS_ENDPOINT: https://minio.justgui.dev
+    AWS_USE_PATH_STYLE_ENDPOINT: "true"
+    BROADCAST_CONNECTION: log
+    BCRYPT_ROUNDS: "12"
+    LISTINGS_UPDATER_CRONJOB: listings-updater
+    LISTINGS_UPDATER_NAMESPACE: hericarealtor
+
+# Run: kubectl create secret generic hericarealtor-secrets ... | kubeseal > values.yaml (sealedSecret section)
+sealedSecret:
+  enabled: true
+  encryptedData:
+    APP_KEY: PLACEHOLDER
+    DB_PASSWORD: PLACEHOLDER
+    REDIS_PASSWORD: PLACEHOLDER
+    AWS_ACCESS_KEY_ID: PLACEHOLDER
+    AWS_SECRET_ACCESS_KEY: PLACEHOLDER
+    MAIL_USERNAME: PLACEHOLDER
+    MAIL_PASSWORD: PLACEHOLDER

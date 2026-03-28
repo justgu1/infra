@@ -1,0 +1,34 @@
+image:
+  repository: ghcr.io/justgu1/hericarealtor-listings-updater
+  tag: latest
+
+schedule: "0 0 * * *"
+timeZone: "America/New_York"
+concurrencyPolicy: Forbid
+
+shm:
+  enabled: true
+  size: "2Gi"
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 512Mi
+  limits:
+    cpu: "1"
+    memory: 2Gi
+
+configMap:
+  data:
+    ZILLOW_PROFILE_SLUG: HericaRealtor
+    ZILLOW_ENCODED_ZUID: X1-ZU13mg0e2nk1iq1_aroy1
+    USE_VIRTUAL_DISPLAY: "true"
+    THROTTLE_MIN: "2.0"
+    THROTTLE_MAX: "5.0"
+    LOG_LEVEL: INFO
+
+# Run: ./apps/listings-updater/seal.sh
+sealedSecret:
+  enabled: true
+  encryptedData:
+    DATABASE_URL: PLACEHOLDER

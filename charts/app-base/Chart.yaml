@@ -1,0 +1,6 @@
+apiVersion: v2
+name: app-base
+description: Base Helm chart for web applications (Laravel/PHP-FPM + nginx sidecar)
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

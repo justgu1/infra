@@ -1,0 +1,95 @@
+replicaCount: 1
+
+image:
+  repository: ""
+  tag: latest
+  pullPolicy: IfNotPresent
+
+# Overrides the chart name used in resource names
+nameOverride: ""
+fullnameOverride: ""
+
+# Non-sensitive env vars mounted as ConfigMap
+configMap:
+  data: {}
+
+# SealedSecret — encryptedData values come from kubeseal output
+sealedSecret:
+  enabled: false
+  encryptedData: {}
+
+serviceAccount:
+  create: true
+
+# Grants the ServiceAccount permission to create/delete Jobs (e.g. artisan listings:sync)
+rbac:
+  enabled: false
+
+# Bundled PostgreSQL StatefulSet (disable to use an external DB)
+postgres:
+  enabled: false
+  image: postgres:16-alpine
+  database: app
+  username: app
+  # password comes from the secret key DB_PASSWORD
+  storage: 5Gi
+
+# Bundled Redis Deployment (disable to use an external Redis)
+redis:
+  enabled: false
+  image: redis:7-alpine
+  # password comes from the secret key REDIS_PASSWORD
+
+# nginx sidecar — serves HTTP:80, proxies PHP to FPM on localhost:9000
+nginx:
+  enabled: true
+  image: nginx:alpine
+  port: 80
+
+# PHP-FPM port (internal, not exposed via Service)
+fpm:
+  port: 9000
+
+# initContainer: copies /var/www/public → shared emptyDir for nginx
+# initContainer: runs artisan migrate before app starts
+initContainers:
+  copyPublic: true
+  migrate:
+    enabled: false
+    command: ["php", "artisan", "migrate", "--force"]
+
+service:
+  port: 80
+  type: ClusterIP
+
+ingress:
+  enabled: false
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+  hosts: []
+  # - host: example.com
+  #   paths:
+  #     - path: /
+  #       pathType: Prefix
+  tls: []
+  # - secretName: example-tls
+  #   hosts:
+  #     - example.com
+
+resources:
+  app:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  nginx:
+    requests:
+      cpu: 20m
+      memory: 32Mi
+    limits:
+      cpu: 100m
+      memory: 64Mi

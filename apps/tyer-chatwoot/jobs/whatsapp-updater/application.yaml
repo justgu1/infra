@@ -1,24 +1,24 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: hericarealtor
+  name: whatsapp-updater
   namespace: argocd
 spec:
   project: apps
   sources:
     - repoURL: git@github.com:justgu1/infra.git
       targetRevision: main
-      path: charts/app-base
+      path: charts/job-base
       helm:
-        releaseName: hericarealtor
+        releaseName: whatsapp-updater
         valueFiles:
-          - $values/apps/hericarealtor/values.yaml
+          - $values/apps/tyer-chatwoot/jobs/whatsapp-updater/values.yaml
     - repoURL: git@github.com:justgu1/infra.git
       targetRevision: main
       ref: values
   destination:
     server: https://kubernetes.default.svc
-    namespace: hericarealtor
+    namespace: chatwoot-tyer
   syncPolicy:
     automated:
       prune: true

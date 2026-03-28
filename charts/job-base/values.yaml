@@ -1,0 +1,55 @@
+replicaCount: 1
+
+image:
+  repository: ""
+  tag: latest
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+# Non-sensitive env vars
+configMap:
+  data: {}
+
+# SealedSecret managed by this chart
+sealedSecret:
+  enabled: false
+  encryptedData: {}
+
+# Reference an existing secret (e.g. from the parent app) instead of a chart-managed one
+externalSecret:
+  name: ""
+
+# ServiceAccount for the job pod
+serviceAccount:
+  create: false
+
+# RBAC — creates Role + RoleBinding for the ServiceAccount
+rbac:
+  enabled: false
+  rules: []
+  # - apiGroups: [""]
+  #   resources: ["pods"]
+  #   verbs: ["get", "list", "delete", "create"]
+
+# CronJob schedule (cron syntax)
+schedule: "0 0 * * *"
+timeZone: "UTC"
+concurrencyPolicy: Forbid
+successfulJobsHistoryLimit: 3
+failedJobsHistoryLimit: 3
+restartPolicy: OnFailure
+
+# /dev/shm size — increase for Chrome/Selenium workloads
+shm:
+  enabled: false
+  size: "2Gi"
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi

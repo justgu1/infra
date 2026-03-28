@@ -1,0 +1,35 @@
+image:
+  repository: saladdinha/chatwoot-whatsapp-version-updater
+  tag: latest
+
+schedule: "0 0 * * *"
+timeZone: "UTC"
+concurrencyPolicy: Forbid
+
+serviceAccount:
+  create: true
+
+rbac:
+  enabled: true
+  rules:
+    - apiGroups: [""]
+      resources: ["pods"]
+      verbs: ["get", "list", "delete", "create"]
+    - apiGroups: [""]
+      resources: ["pods/exec"]
+      verbs: ["create"]
+    - apiGroups: ["apps"]
+      resources: ["deployments"]
+      verbs: ["get", "patch"]
+
+# Reutiliza o secret do app pai — não cria um novo SealedSecret
+externalSecret:
+  name: chatwoot-secrets
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 128Mi
