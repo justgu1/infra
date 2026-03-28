@@ -33,13 +33,13 @@ spec:
                 - configMapRef:
                     name: {{ include "job-base.configMapName" . }}
                 {{- end }}
-                {{- if .Values.sealedSecret.enabled }}
+                {{- if .Values.externalSecret.enabled }}
                 - secretRef:
                     name: {{ include "job-base.secretName" . }}
                 {{- end }}
-                {{- if .Values.externalSecret.name }}
+                {{- if .Values.externalSecretRef.name }}
                 - secretRef:
-                    name: {{ .Values.externalSecret.name }}
+                    name: {{ .Values.externalSecretRef.name }}
                 {{- end }}
               resources:
                 {{- toYaml .Values.resources | nindent 16 }}

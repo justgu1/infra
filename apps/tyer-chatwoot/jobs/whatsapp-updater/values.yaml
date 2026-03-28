@@ -22,9 +22,17 @@ rbac:
       resources: ["deployments"]
       verbs: ["get", "patch"]
 
-# Reutiliza o secret do app pai — não cria um novo SealedSecret
 externalSecret:
+  enabled: true
+  # Vault path: secret/data/whatsapp-updater
+  # Campos esperados: (herdado do chatwoot-secrets via externalSecretRef)
+
+# Reutiliza o secret do app pai via ExternalSecret próprio no Vault
+externalSecretRef:
   name: chatwoot-secrets
+
+sealedSecret:
+  enabled: false
 
 resources:
   requests:

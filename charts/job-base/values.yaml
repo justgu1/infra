@@ -12,14 +12,20 @@ fullnameOverride: ""
 configMap:
   data: {}
 
-# SealedSecret managed by this chart
+# External Secrets Operator — busca secrets do Vault.
+# Path padrão: secret/<release-name>
+externalSecret:
+  enabled: false
+  vaultPath: ""
+
+# Referencia secret existente de outro app (ex: secret do app pai)
+externalSecretRef:
+  name: ""
+
+# LEGADO
 sealedSecret:
   enabled: false
   encryptedData: {}
-
-# Reference an existing secret (e.g. from the parent app) instead of a chart-managed one
-externalSecret:
-  name: ""
 
 # ServiceAccount for the job pod
 serviceAccount:

@@ -1,0 +1,143 @@
+---
+# Job de inicialização do Vault.
+# Roda uma única vez após o deploy. Realiza:
+#   1. vault operator init        → gera unseal keys + root token
+#   2. vault operator unseal (3x) → unseal com as 3 primeiras keys
+#   3. Habilita AppRole auth e KV v2 engine
+#   4. Cria role "eso" com policy de leitura global
+#   5. Salva roleId + secretId no Secret vault-eso-auth (usado pelo ESO)
+#   6. Salva unseal keys + root token no Secret vault-init-keys (guarde e delete depois!)
+#
+# IMPORTANTE: após o primeiro run salve vault-init-keys em local seguro e delete o Secret.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: vault-init
+  namespace: vault
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      serviceAccountName: vault-init
+      containers:
+        - name: vault-init
+          image: hashicorp/vault:latest
+          env:
+            - name: VAULT_ADDR
+              value: http://vault.vault.svc.cluster.local:8200
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+
+              # Aguarda Vault estar pronto
+              until vault status 2>&1 | grep -q "Initialized"; do
+                echo "Aguardando Vault..."
+                sleep 3
+              done
+
+              INITIALIZED=$(vault status -format=json 2>/dev/null | grep '"initialized"' | grep -c 'true' || true)
+
+              if [ "$INITIALIZED" = "0" ]; then
+                echo "Inicializando Vault..."
+                INIT_OUTPUT=$(vault operator init -key-shares=5 -key-threshold=3 -format=json)
+
+                UNSEAL_KEY_1=$(echo "$INIT_OUTPUT" | grep '"unseal_keys_b64"' -A 6 | grep '"' | sed -n '1p' | tr -d '", ')
+                UNSEAL_KEY_2=$(echo "$INIT_OUTPUT" | grep '"unseal_keys_b64"' -A 6 | grep '"' | sed -n '2p' | tr -d '", ')
+                UNSEAL_KEY_3=$(echo "$INIT_OUTPUT" | grep '"unseal_keys_b64"' -A 6 | grep '"' | sed -n '3p' | tr -d '", ')
+                ROOT_TOKEN=$(echo "$INIT_OUTPUT" | grep '"root_token"' | sed 's/.*: "\(.*\)".*/\1/')
+
+                # Salva keys em Secret (TEMPORÁRIO — mova para local seguro e delete!)
+                kubectl create secret generic vault-init-keys \
+                  --namespace=vault \
+                  --from-literal=init-output="$INIT_OUTPUT" \
+                  --dry-run=client -o yaml | kubectl apply -f -
+
+                vault operator unseal "$UNSEAL_KEY_1"
+                vault operator unseal "$UNSEAL_KEY_2"
+                vault operator unseal "$UNSEAL_KEY_3"
+              else
+                echo "Vault já inicializado."
+                ROOT_TOKEN=$(kubectl get secret vault-init-keys -n vault -o jsonpath='{.data.init-output}' | base64 -d | grep '"root_token"' | sed 's/.*: "\(.*\)".*/\1/')
+              fi
+
+              export VAULT_TOKEN="$ROOT_TOKEN"
+
+              # Unseal se selado
+              SEALED=$(vault status -format=json 2>/dev/null | grep '"sealed"' | grep -c 'true' || true)
+              if [ "$SEALED" = "1" ]; then
+                UNSEAL_KEY_1=$(kubectl get secret vault-init-keys -n vault -o jsonpath='{.data.init-output}' | base64 -d | grep '"unseal_keys_b64"' -A 6 | grep '"' | sed -n '1p' | tr -d '", ')
+                UNSEAL_KEY_2=$(kubectl get secret vault-init-keys -n vault -o jsonpath='{.data.init-output}' | base64 -d | grep '"unseal_keys_b64"' -A 6 | grep '"' | sed -n '2p' | tr -d '", ')
+                UNSEAL_KEY_3=$(kubectl get secret vault-init-keys -n vault -o jsonpath='{.data.init-output}' | base64 -d | grep '"unseal_keys_b64"' -A 6 | grep '"' | sed -n '3p' | tr -d '", ')
+                vault operator unseal "$UNSEAL_KEY_1"
+                vault operator unseal "$UNSEAL_KEY_2"
+                vault operator unseal "$UNSEAL_KEY_3"
+              fi
+
+              # Habilita KV v2
+              vault secrets list | grep -q '^secret/' || vault secrets enable -path=secret kv-v2
+              echo "KV v2 habilitado em secret/"
+
+              # Habilita AppRole
+              vault auth list | grep -q '^approle/' || vault auth enable approle
+              echo "AppRole habilitado"
+
+              # Policy para o ESO (leitura em todos os paths)
+              vault policy write eso-read - <<EOF
+              path "secret/data/*" {
+                capabilities = ["read", "list"]
+              }
+              path "secret/metadata/*" {
+                capabilities = ["read", "list"]
+              }
+              EOF
+
+              # Role para o ESO
+              vault write auth/approle/role/eso \
+                token_policies="eso-read" \
+                token_ttl=1h \
+                token_max_ttl=4h
+
+              ROLE_ID=$(vault read -field=role_id auth/approle/role/eso/role-id)
+              SECRET_ID=$(vault write -field=secret_id -f auth/approle/role/eso/secret-id)
+
+              # Salva roleId + secretId para o ESO
+              kubectl create secret generic vault-eso-auth \
+                --namespace=external-secrets \
+                --from-literal=roleId="$ROLE_ID" \
+                --from-literal=secretId="$SECRET_ID" \
+                --dry-run=client -o yaml | kubectl apply -f -
+
+              echo "Vault inicializado e ESO configurado com sucesso!"
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vault-init
+  namespace: vault
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: vault-init
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["create", "get", "patch", "update", "apply"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: vault-init
+subjects:
+  - kind: ServiceAccount
+    name: vault-init
+    namespace: vault
+roleRef:
+  kind: ClusterRole
+  name: vault-init
+  apiGroup: rbac.authorization.k8s.io

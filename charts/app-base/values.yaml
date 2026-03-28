@@ -13,7 +13,15 @@ fullnameOverride: ""
 configMap:
   data: {}
 
-# SealedSecret — encryptedData values come from kubeseal output
+# External Secrets Operator — busca secrets do Vault automaticamente.
+# O path padrão é secret/<release-name> (ex: secret/hericarealtor).
+# Todos os campos do path viram envs no pod automaticamente.
+externalSecret:
+  enabled: false
+  vaultPath: ""   # default: secret/<release-name>
+
+# LEGADO — mantido apenas para compatibilidade durante migração.
+# Novos apps devem usar externalSecret acima.
 sealedSecret:
   enabled: false
   encryptedData: {}

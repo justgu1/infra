@@ -40,7 +40,7 @@ spec:
             - configMapRef:
                 name: {{ include "app-base.configMapName" . }}
             {{- end }}
-            {{- if .Values.sealedSecret.enabled }}
+            {{- if or .Values.sealedSecret.enabled .Values.externalSecret.enabled }}
             - secretRef:
                 name: {{ include "app-base.secretName" . }}
             {{- end }}
@@ -59,7 +59,7 @@ spec:
             - configMapRef:
                 name: {{ include "app-base.configMapName" . }}
             {{- end }}
-            {{- if .Values.sealedSecret.enabled }}
+            {{- if or .Values.sealedSecret.enabled .Values.externalSecret.enabled }}
             - secretRef:
                 name: {{ include "app-base.secretName" . }}
             {{- end }}

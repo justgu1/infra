@@ -1,0 +1,66 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: vault
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"   # antes dos apps que dependem de secrets
+spec:
+  project: core
+  sources:
+    - repoURL: https://helm.releases.hashicorp.com
+      chart: vault
+      targetRevision: "*"
+      helm:
+        releaseName: vault
+        values: |
+          server:
+            standalone:
+              enabled: true
+              config: |
+                ui = true
+
+                listener "tcp" {
+                  tls_disable = 1
+                  address = "[::]:8200"
+                  cluster_address = "[::]:8201"
+                }
+
+                storage "file" {
+                  path = "/vault/data"
+                }
+            dataStorage:
+              enabled: true
+              size: 10Gi
+            ingress:
+              enabled: true
+              ingressClassName: nginx
+              annotations:
+                cert-manager.io/cluster-issuer: letsencrypt-prod
+              hosts:
+                - host: vault.justgui.dev
+                  paths:
+                    - /
+              tls:
+                - secretName: vault-tls
+                  hosts:
+                    - vault.justgui.dev
+            readinessProbe:
+              enabled: true
+              path: /v1/sys/health?standbyok=true&sealedok=true&uninitok=true
+          ui:
+            enabled: true
+          injector:
+            enabled: false   # usamos ESO, não o agent injector
+    - repoURL: git@github.com:justgu1/infra.git
+      targetRevision: main
+      path: core/vault/manifests
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: vault
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

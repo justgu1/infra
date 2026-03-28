@@ -27,8 +27,10 @@ configMap:
     THROTTLE_MAX: "5.0"
     LOG_LEVEL: INFO
 
-# Run: ./apps/listings-updater/seal.sh
-sealedSecret:
+externalSecret:
   enabled: true
-  encryptedData:
-    DATABASE_URL: PLACEHOLDER
+  # Vault path: secret/data/listings-updater
+  # Campos esperados: DATABASE_URL
+
+sealedSecret:
+  enabled: false

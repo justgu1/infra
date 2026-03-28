@@ -80,14 +80,10 @@ configMap:
     LISTINGS_UPDATER_CRONJOB: listings-updater
     LISTINGS_UPDATER_NAMESPACE: hericarealtor
 
-# Run: kubectl create secret generic hericarealtor-secrets ... | kubeseal > values.yaml (sealedSecret section)
-sealedSecret:
+externalSecret:
   enabled: true
-  encryptedData:
-    APP_KEY: PLACEHOLDER
-    DB_PASSWORD: PLACEHOLDER
-    REDIS_PASSWORD: PLACEHOLDER
-    AWS_ACCESS_KEY_ID: PLACEHOLDER
-    AWS_SECRET_ACCESS_KEY: PLACEHOLDER
-    MAIL_USERNAME: PLACEHOLDER
-    MAIL_PASSWORD: PLACEHOLDER
+  # Vault path: secret/data/hericarealtor
+  # Campos esperados: APP_KEY, DB_PASSWORD, REDIS_PASSWORD, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, MAIL_USERNAME, MAIL_PASSWORD
+
+sealedSecret:
+  enabled: false

@@ -1,0 +1,41 @@
+---
+# CronJob que verifica o Vault a cada 5 minutos e faz unseal se necessário.
+# Vault sela automaticamente após restart do pod.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: vault-unseal
+  namespace: vault
+spec:
+  schedule: "*/5 * * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          serviceAccountName: vault-init
+          containers:
+            - name: unseal
+              image: hashicorp/vault:latest
+              env:
+                - name: VAULT_ADDR
+                  value: http://vault.vault.svc.cluster.local:8200
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  SEALED=$(vault status -format=json 2>/dev/null | grep '"sealed"' | grep -c 'true' || true)
+                  if [ "$SEALED" = "0" ]; then
+                    echo "Vault já está unsealed."
+                    exit 0
+                  fi
+                  echo "Vault selado — fazendo unseal..."
+                  INIT=$(kubectl get secret vault-init-keys -n vault -o jsonpath='{.data.init-output}' | base64 -d)
+                  KEY1=$(echo "$INIT" | grep '"unseal_keys_b64"' -A 6 | grep '"' | sed -n '1p' | tr -d '", ')
+                  KEY2=$(echo "$INIT" | grep '"unseal_keys_b64"' -A 6 | grep '"' | sed -n '2p' | tr -d '", ')
+                  KEY3=$(echo "$INIT" | grep '"unseal_keys_b64"' -A 6 | grep '"' | sed -n '3p' | tr -d '", ')
+                  vault operator unseal "$KEY1"
+                  vault operator unseal "$KEY2"
+                  vault operator unseal "$KEY3"
+                  echo "Vault unsealed."
