@@ -115,3 +115,11 @@ metrics:
   port: metrics     # nome da porta no Service
   path: /metrics
   interval: 30s
+
+# NetworkPolicy — controla quais namespaces podem acessar o pod
+networkPolicy:
+  enabled: false
+  # Namespaces internos permitidos além do ingress-nginx
+  allowFromNamespaces: []
+  # - n8n
+  # - monitoring

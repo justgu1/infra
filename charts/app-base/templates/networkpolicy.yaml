@@ -1,0 +1,35 @@
+{{- if .Values.networkPolicy.enabled }}
+# NetworkPolicy — limita quem pode acessar o pod via rede.
+# O tráfego externo (ingress nginx) ainda é permitido na porta 80.
+# Isso é uma camada de segurança adicional; a autenticação real é feita no middleware.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "app-base.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "app-base.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "app-base.selectorLabels" . | nindent 6 }}
+  policyTypes:
+    - Ingress
+  ingress:
+    # Permite tráfego do ingress-nginx (porta nginx sidecar)
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: ingress-nginx
+      ports:
+        - port: {{ .Values.nginx.port }}
+    {{- range .Values.networkPolicy.allowFromNamespaces }}
+    # Permite tráfego de namespace interno (ex: n8n)
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ . }}
+      ports:
+        - port: {{ $.Values.nginx.port }}
+    {{- end }}
+{{- end }}

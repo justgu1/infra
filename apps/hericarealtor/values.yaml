@@ -32,12 +32,8 @@ ingress:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-    # Bloqueia /api/jobs/* externamente — só acessível dentro do cluster (n8n)
-    nginx.ingress.kubernetes.io/server-snippet: |
-      location ~* ^/api/jobs/ {
-        deny all;
-        return 403;
-      }
+    # /api/jobs/* é protegido pelo InternalTokenMiddleware (X-Internal-Token ou sessão autenticada)
+    # server-snippet está desabilitado neste cluster — a segurança é feita na camada da aplicação
   hosts:
     - host: hericarealtor.com
       paths:
@@ -90,8 +86,14 @@ configMap:
 
 externalSecret:
   enabled: true
-  # Vault path: secret/data/hericarealtor
+  # Vault path: hericarealtor (sem prefixo secret/ — ClusterSecretStore já tem path: secret)
   # Campos esperados: APP_KEY, DB_PASSWORD, REDIS_PASSWORD, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, MAIL_USERNAME, MAIL_PASSWORD, N8N_INTERNAL_TOKEN
 
 sealedSecret:
   enabled: false
+
+networkPolicy:
+  enabled: true
+  allowFromNamespaces:
+    - n8n
+    - monitoring

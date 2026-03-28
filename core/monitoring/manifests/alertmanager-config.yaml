@@ -4,7 +4,6 @@ metadata:
   name: global-alerts
   namespace: monitoring
   labels:
-    # Label para o AlertmanagerConfig ser descoberto pelo Alertmanager do kube-prometheus-stack
     release: kube-prometheus-stack
 spec:
   route:
@@ -14,13 +13,11 @@ spec:
     groupInterval: 5m
     repeatInterval: 12h
     routes:
-      # Jobs críticos (listings-updater, whatsapp-updater) → alerta imediato
       - matchers:
           - name: severity
             value: critical
         receiver: email-default
         repeatInterval: 1h
-      # Warnings → agrupados, menos urgentes
       - matchers:
           - name: severity
             value: warning
@@ -29,14 +26,17 @@ spec:
   receivers:
     - name: email-default
       emailConfigs:
-        - to: "${ALERT_EMAIL_TO}"
-          from: "${ALERT_EMAIL_FROM}"
-          smarthost: "${SMTP_HOST}:${SMTP_PORT}"
-          authUsername: "${SMTP_USER}"
+        - to: "guilherme@justgui.dev"
+          from: "support@justgui.dev"
+          smarthost: "smtp.hostinger.com:465"
+          authUsername: "support@justgui.dev"
           authPassword:
             name: alertmanager-smtp-secret
             key: SMTP_PASSWORD
-          requireTLS: true
+          requireTLS: false   # porta 465 = SSL direto, não STARTTLS
           sendResolved: true
+          tlsConfig:
+            insecureSkipVerify: false
           headers:
-            Subject: '[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .CommonLabels.alertname }}'
+            - key: Subject
+              value: '[{{ "{{" }} .Status | toUpper {{ "}}" }}] {{ "{{" }} .CommonLabels.alertname {{ "}}" }}'
