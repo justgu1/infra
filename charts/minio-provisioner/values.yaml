@@ -1,0 +1,17 @@
+# URL interna do MinIO no cluster
+minioEndpoint: "http://minio.minio.svc.cluster.local:9000"
+
+# Secret com MINIO_ROOT_USER e MINIO_ROOT_PASSWORD
+# Criado pelo ESO a partir do Vault em secret/cluster/minio
+credentialsSecret: minio-root-credentials
+
+# Lista de buckets a criar.
+# policy: none | download | upload | public
+# public = leitura anônima total (CDN/assets)
+buckets: []
+# - name: hericarealtor
+#   policy: public
+# - name: tyer-chatwoot
+#   policy: none
+# - name: justgui
+#   policy: none

@@ -1,0 +1,50 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "minio-provisioner.name" . }}-{{ now | unixEpoch }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: minio-provisioner
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  annotations:
+    # Roda toda vez que o ArgoCD sincroniza (hook PostSync)
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  ttlSecondsAfterFinished: 600
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: mc
+          image: minio/mc:latest
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+
+              echo "Conectando ao MinIO em {{ .Values.minioEndpoint }}..."
+              mc alias set local {{ .Values.minioEndpoint }} \
+                "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD" --api S3v4
+
+              {{- range .Values.buckets }}
+              echo "Criando bucket: {{ .name }}"
+              mc mb --ignore-existing local/{{ .name }}
+
+              {{- if eq .policy "public" }}
+              echo "Aplicando política public em {{ .name }}..."
+              mc anonymous set download local/{{ .name }}
+              {{- else if eq .policy "upload" }}
+              mc anonymous set upload local/{{ .name }}
+              {{- else if eq .policy "none" }}
+              mc anonymous set none local/{{ .name }}
+              {{- end }}
+              echo "✓ {{ .name }} ({{ .policy }})"
+              {{- end }}
+
+              echo "Todos os buckets provisionados com sucesso."
+          envFrom:
+            - secretRef:
+                name: {{ .Values.credentialsSecret }}

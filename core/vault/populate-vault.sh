@@ -33,6 +33,13 @@ vault kv put secret/listings-updater \
 
 echo "✓ secret/listings-updater"
 
+# ─── whatsapp-updater (tyer-chatwoot) ───────────────────────────────────────
+vault kv put secret/whatsapp-updater \
+  CHATWOOT_URL="${CHATWOOT_URL:?}" \
+  CHATWOOT_API_TOKEN="${CHATWOOT_API_TOKEN:?}"
+
+echo "✓ secret/whatsapp-updater"
+
 # ─── cluster (MinIO root, SMTP, etc.) ───────────────────────────────────────
 vault kv put secret/cluster/minio \
   MINIO_ROOT_USER="${MINIO_ROOT_USER:?}" \

@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: minio-provisioner
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  project: services
+  sources:
+    - repoURL: https://github.com/justgu1/infra
+      targetRevision: main
+      path: charts/minio-provisioner
+      helm:
+        releaseName: minio-provisioner
+        valueFiles:
+          - $values/services/minio-provisioner/values.yaml
+    - repoURL: https://github.com/justgu1/infra
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: minio
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

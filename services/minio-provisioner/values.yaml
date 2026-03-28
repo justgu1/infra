@@ -1,0 +1,10 @@
+minioEndpoint: "http://minio.minio.svc.cluster.local:9000"
+credentialsSecret: minio-root-credentials
+
+buckets:
+  - name: hericarealtor
+    policy: public       # Assets públicos (imagens de imóveis)
+  - name: tyer-chatwoot
+    policy: none         # Arquivos privados do Chatwoot
+  - name: justgui
+    policy: none         # Uso geral privado

@@ -1,0 +1,7 @@
+apiVersion: v2
+name: minio-provisioner
+description: >
+  Cria buckets e políticas no MinIO compartilhado via minio/mc.
+  Roda como Job do Kubernetes — idempotente, seguro rodar múltiplas vezes.
+type: application
+version: 0.1.0

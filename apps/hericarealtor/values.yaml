@@ -74,7 +74,9 @@ configMap:
     AWS_DEFAULT_REGION: us-east-1
     AWS_BUCKET: hericarealtor
     AWS_ENDPOINT: https://minio.justgui.dev
+    AWS_URL: https://minio.justgui.dev/hericarealtor
     AWS_USE_PATH_STYLE_ENDPOINT: "true"
+    ASSET_URL: https://minio.justgui.dev/hericarealtor
     BROADCAST_CONNECTION: log
     BCRYPT_ROUNDS: "12"
     LISTINGS_UPDATER_CRONJOB: listings-updater
